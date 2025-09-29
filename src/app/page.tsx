@@ -3,7 +3,7 @@ import { useNormalizeSearchParams } from '@shared/utils/useNormalizeSearchParams
 import qs from 'qs'
 import ProductsList from './ProductsList'
 
-export default async function ProductsPage({
+export default function ProductsPage({
   searchParams,
 }: {
   searchParams: Record<string, string | string[] | undefined>
