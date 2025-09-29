@@ -1,0 +1,39 @@
+@use '@styles/vars' as *;
+
+.empty-basket {
+  margin: 0 auto;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 28px;
+  // .empty-basket__title
+
+  &__title {
+    font-weight: 500;
+    font-size: 22px;
+  }
+
+  // .empty-basket__text
+
+  &__text {
+  }
+
+  // .empty-basket__button
+
+  &__button {
+    border-radius: 7px;
+    color: white;
+    background-color: $brand;
+    padding: 14px 20px;
+    transition: 0.3s;
+    &:hover {
+      background-color: $button-brand-hover;
+    }
+
+    &:active {
+      background-color: $button-brand-active;
+    }
+  }
+}

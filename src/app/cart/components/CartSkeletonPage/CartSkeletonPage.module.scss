@@ -1,0 +1,125 @@
+@use '@styles/vars' as *;
+@use '@styles/mixins' as mixins;
+
+.basket {
+  padding: calc(30px + var(--header-height)) 0 100px 0;
+  @include mixins.respond(960px) {
+    padding: calc(30px + var(--header-height)) 0 200px 0;
+  }
+
+  // .basket__container
+
+  &__container {
+    max-width: $container-width;
+    padding: 0 15px;
+    margin: 0 auto;
+    display: flex;
+    gap: 40px;
+  }
+
+  // .basket__column
+
+  &__column {
+    // .basket__column_1
+
+    &_1 {
+      flex: 1 1 auto;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    // .basket__column_2
+
+    &_2 {
+      flex: 0 0 350px;
+      @include mixins.respond(960px) {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+      }
+    }
+  }
+
+  // .basket__title
+
+  &__title span {
+    width: 100px;
+    height: 30px;
+  }
+
+  // .basket__body
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  // .basket__wrapper
+
+  &__wrapper {
+    position: sticky;
+    top: 120px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 10px;
+    gap: 20px;
+    background-color: white;
+    @include mixins.respond(960px) {
+      border-radius: 0px;
+    }
+  }
+
+  // .basket__counts
+
+  &__counts {
+    display: flex;
+    gap: 10px;
+  }
+
+  // .basket__counts-text
+
+  &__counts-text span {
+    width: 70px;
+  }
+
+  // .basket__counts-product
+
+  &__counts-product span {
+    width: 40px;
+  }
+
+  // .basket__finals
+
+  &__finals {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  // .basket__total-text
+
+  &__total-text span {
+    height: 20px;
+    width: 70px;
+  }
+
+  // .basket__total-price
+
+  &__total-price span {
+    height: 20px;
+    width: 50px;
+  }
+
+  // .basket__button
+
+  &__button span {
+    height: 50px;
+    width: 100%;
+    border-radius: 10px;
+  }
+}

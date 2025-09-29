@@ -1,0 +1,15 @@
+@use '@styles/vars' as *;
+
+.arrow-down-icon {
+  fill: $icon-primary;
+
+  &_primary {
+    fill: $icon-primary;
+  }
+  &_secondary {
+    fill: $icon-secondary;
+  }
+  &_accent {
+    fill: $icon-accent;
+  }
+}

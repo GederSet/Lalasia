@@ -1,0 +1,7 @@
+@use '@styles/vars' as *;
+
+@mixin respond($breakpoint) {
+  @media (max-width: $breakpoint) {
+    @content;
+  }
+}

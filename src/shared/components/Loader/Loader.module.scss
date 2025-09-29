@@ -1,0 +1,55 @@
+.loader__wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: loader 1s infinite linear;
+  &_size {
+    &_xs {
+      width: 14px;
+      height: 14px;
+    }
+
+    &_s {
+      width: 24px;
+      height: 24px;
+    }
+
+    &_m {
+      width: 48px;
+      height: 48px;
+    }
+
+    &_l {
+      width: 60px;
+      height: 60px;
+    }
+  }
+}
+
+.loader {
+  fill: var(--loader-color);
+
+  &_s {
+    width: 16px;
+    height: 16px;
+  }
+
+  &_m {
+    width: 32px;
+    height: 32px;
+  }
+
+  &_l {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@keyframes loader {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

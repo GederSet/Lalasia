@@ -1,0 +1,71 @@
+@use '@styles/vars' as *;
+
+.multi-dropdown {
+  position: relative;
+  font-family: Roboto;
+  height: 52px;
+
+  &_open .custom_input--input {
+    color: rgba(175, 173, 181, 1);
+  }
+
+  &__shell {
+    position: absolute;
+    width: 100%;
+    padding-top: $space-xxs;
+  }
+
+  &__dropdown {
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &__input {
+    height: 100%;
+  }
+
+  &__input input {
+    background-color: transparent;
+  }
+
+  &__input .custom_input--input {
+    font-size: 16px;
+    height: 52px;
+    padding-left: 12px;
+  }
+
+  &__icon {
+    cursor: pointer;
+    transition: transform 0.3s ease 0s;
+  }
+  &__icon_active {
+    transform: rotate(-180deg);
+  }
+
+  &__option {
+    padding: $space-s $space-xs;
+    cursor: pointer;
+    background-color: white;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #afadb5;
+    }
+
+    &_selected {
+      color: $multidropdown-option-brand;
+    }
+
+    &_selected:hover {
+      color: $multidropdown-option-brand;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}

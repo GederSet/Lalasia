@@ -1,0 +1,11 @@
+@use '@styles/vars' as *;
+
+:root {
+  --header-height: 90px;
+}
+
+@media (max-width: $media-query-768) {
+  :root {
+    --header-height: 70px;
+  }
+}

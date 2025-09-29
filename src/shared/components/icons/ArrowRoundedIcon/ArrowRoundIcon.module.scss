@@ -1,0 +1,15 @@
+@use '@styles/vars' as *;
+
+.arrow-round-icon {
+  stroke: $icon-primary;
+
+  &_primary {
+    stroke: $icon-primary;
+  }
+  &_secondary {
+    stroke: $icon-secondary;
+  }
+  &_accent {
+    stroke: $icon-accent;
+  }
+}

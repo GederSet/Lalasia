@@ -1,0 +1,50 @@
+@use '@styles/vars' as *;
+
+.button {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  transition: 0.3s;
+
+  &_green {
+    color: white;
+    background-color: $button-brand;
+
+    &:hover:not(.button_disabled) {
+      background-color: $button-brand-hover;
+    }
+
+    &:active:not(.button_disabled) {
+      background-color: $button-brand-active;
+    }
+  }
+
+  &_transparent {
+    color: black;
+    background-color: transparent;
+    border: 1px solid #afadb5;
+
+    &:hover:not(.button_disabled) {
+      background-color: #efefef;
+    }
+
+    &:active:not(.button_disabled) {
+      background-color: #e4e4e4;
+    }
+  }
+
+  &_disabled {
+    background-color: $button-disabled;
+    color: #aaa;
+  }
+
+  &_loading {
+    pointer-events: none;
+  }
+}

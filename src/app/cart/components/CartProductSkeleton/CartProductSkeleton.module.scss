@@ -1,0 +1,115 @@
+@use '@styles/vars' as *;
+@use '@styles/mixins' as mixins;
+
+.basket-product {
+  // .basket__product
+
+  &__product {
+    position: relative;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    @include mixins.respond($media-query-1024) {
+      flex-direction: column;
+      gap: 15px;
+      &:not(:last-child) {
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+    }
+  }
+
+  // .basket__info
+
+  &__info {
+    flex: 1 1 auto;
+    display: flex;
+    gap: 20px;
+    @include mixins.respond($media-query-425) {
+      flex-direction: column;
+    }
+  }
+
+  // .basket__img
+
+  &__img span {
+    flex: 0 0 100px;
+    width: 100px;
+    height: 130px;
+    border-radius: 10px;
+    overflow: hidden;
+    @include mixins.respond($media-query-1024) {
+      flex: 0 0 110px;
+      width: 110px;
+    }
+    @include mixins.respond($media-query-425) {
+      flex: 0 0 auto;
+      width: 100%;
+      height: initial;
+      aspect-ratio: 1;
+    }
+  }
+
+  // .basket__shell
+
+  &__shell {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    flex: 1 1 auto;
+  }
+
+  // .basket__price
+
+  &__price span {
+    width: 50px;
+  }
+
+  // .basket__name
+
+  &__name span {
+    width: 100px;
+  }
+
+  // .basket__description
+
+  &__description span {
+    width: 100%;
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+  }
+
+  // .basket__icons
+
+  &__icons {
+    display: flex;
+    gap: 20px;
+    @include mixins.respond($media-query-1024) {
+      position: absolute;
+      bottom: 7px;
+      right: 0;
+    }
+  }
+
+  &__trash span {
+    width: 30px;
+    height: 30px;
+  }
+
+  // .basket__trash
+
+  &__trash {
+  }
+
+  // .basket__counter
+
+  &__counter span {
+    display: flex;
+    width: 120px;
+    height: 40px;
+    @include mixins.respond($media-query-1024) {
+      width: 110px;
+    }
+  }
+}

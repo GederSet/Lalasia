@@ -1,0 +1,96 @@
+import Button from '@components/Button'
+import Text from '@components/Text'
+import Popup from '@shared/components/Popup'
+import { useRootStore } from '@shared/store/RootStore'
+import { ProductType } from '@shared/types/ProductType'
+import cn from 'classnames'
+import Image from 'next/image'
+import { useCallback, useState } from 'react'
+import s from './ProductInfo.module.scss'
+
+export type ProductInfoProps = {
+  product: ProductType
+  className?: string
+}
+
+const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
+  const rootStore = useRootStore()
+  const [isPopupOpen, setIsPopupOpen] = useState(false)
+
+  const handleAddProductToBasket = useCallback(() => {
+    if (!rootStore.auth.isAuthenticated) {
+      setIsPopupOpen(true)
+      return
+    }
+
+    const productInfo = {
+      id: product.id,
+      documentId: product.documentId,
+      title: product.title,
+      price: product.price,
+      description: product.description,
+      images: product.images,
+    }
+
+    rootStore.cart.addToCart(productInfo)
+  }, [product, rootStore])
+
+  return (
+    <>
+      <div className={cn(s['product-info'], className)}>
+        <div className={s['product-info__img']}>
+          <Image fill src={product.images[0].url} alt='product' />
+        </div>
+        <div className={s['product-info__content']}>
+          <div className={s['product-info__text-box']}>
+            <Text
+              tag='h2'
+              view='p-44'
+              weight='bold'
+              className={s['product-info__name']}
+            >
+              {product.title}
+            </Text>
+            <Text
+              tag='p'
+              view='p-20'
+              color='secondary'
+              className={s['product-info__description']}
+            >
+              {product.description}
+            </Text>
+          </div>
+          <div className={s['product-info__price-box']}>
+            <Text
+              tag='p'
+              view='p-44'
+              weight='bold'
+              className={s['product-info__price']}
+            >
+              {`$${product.price}`}
+            </Text>
+            <div className={s['product-info__buttons']}>
+              <Button className={s['product-info_button']}>Buy Now</Button>
+              <Button
+                onClick={handleAddProductToBasket}
+                className={s['product-info_button']}
+                buttonStyle='transparent'
+              >
+                Add to Cart
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Popup
+        isOpen={isPopupOpen}
+        title='Warning'
+        description='You are not logged in'
+        type='alert'
+        onConfirm={() => setIsPopupOpen(false)}
+      />
+    </>
+  )
+}
+
+export default ProductInfo

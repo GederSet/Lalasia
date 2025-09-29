@@ -1,7 +1,10 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  reactStrictMode: false,
+  images: {
+    domains: ['front-school.minio.ktsdev.ru'],
+  },
+}
 
-export default nextConfig;
+export default nextConfig

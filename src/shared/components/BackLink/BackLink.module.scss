@@ -1,0 +1,17 @@
+.back-link {
+  display: inline-flex;
+  gap: 15px;
+  // .back-link__arrow
+
+  &__arrow {
+    transform: rotate(90deg);
+  }
+
+  // .back-link__text
+
+  &__text {
+    color: black;
+    font-size: 20px;
+    line-height: 24px;
+  }
+}
