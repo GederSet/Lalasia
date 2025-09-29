@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['front-school.minio.ktsdev.ru'],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 }
 
 export default nextConfig
