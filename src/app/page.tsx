@@ -3,18 +3,14 @@ import { useNormalizeSearchParams } from '@shared/utils/useNormalizeSearchParams
 import qs from 'qs'
 import ProductsList from './ProductsList'
 
-export default function ProductsPage({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>
-}) {
-  // нормализуем объект searchParams, чтобы хоть как-то можно было работать
+export default function ProductsPage({ searchParams }: { searchParams: any }) {
+  // нормализуем объект searchParams
   const normalized = useNormalizeSearchParams(searchParams)
 
-  // делаем из объекта строку
+  // превращаем в строку
   const queryString = new URLSearchParams(normalized).toString()
 
-  // делаем из строки нормальный объект, с которым можно работать
+  // парсим обратно в объект
   const parsed = qs.parse(queryString)
 
   const queryData = {
