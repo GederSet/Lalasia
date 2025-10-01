@@ -13,7 +13,7 @@ import LoupeIcon from '@shared/components/icons/LoupeIcon'
 import { Meta } from '@shared/config/meta'
 import { useRootStore } from '@shared/store/RootStore'
 import { observer } from 'mobx-react-lite'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import 'react-loading-skeleton/dist/skeleton.css'
 import s from './Products.module.scss'
 import ErrorProduct from './components/ErrorProduct'
@@ -42,10 +42,15 @@ const ProductsList = () => {
     productsStore.setFindProducts()
   }, [productsStore])
 
-  useEffect(() => {
-    productsStore.loadProducts()
-    rootStore.query.getCategories()
-  }, [])
+  // useEffect(() => {
+  //   const urlSearch = rootStore.query.getParam('search') as string
+  //   const urlCategories = rootStore.query.getParam('categories') as Option[]
+  //   const urlPage = rootStore.query.currentPage
+
+  //   if (urlSearch || urlCategories?.length > 0 || urlPage > 1) {
+  //     productsStore.loadProducts()
+  //   }
+  // }, [])
 
   return (
     <section className={s.products}>

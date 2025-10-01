@@ -1,26 +1,41 @@
 import { ProductsPageStoreContextProvider } from '@/shared/store/ProductsStore/ProductsPageStoreProvider'
-import { useNormalizeSearchParams } from '@shared/utils/useNormalizeSearchParams'
-import qs from 'qs'
+import ProductsPageStore from '@shared/store/ProductsStore'
+import QueryParamsStore from '@shared/store/RootStore/QueryParamsStore'
+import { SearchParams } from '@shared/types/SearchParamsType'
 import ProductsList from './ProductsList'
 
-export default function ProductsPage({ searchParams }: { searchParams: any }) {
-  // нормализуем объект searchParams
-  const normalized = useNormalizeSearchParams(searchParams)
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams
+}) {
+  const queryData = QueryParamsStore.getNormalizeQueryParams(await searchParams)
 
-  // превращаем в строку
-  const queryString = new URLSearchParams(normalized).toString()
+  const [products, categories] = await Promise.all([
+    ProductsPageStore.getInitProducts(queryData),
+    QueryParamsStore.getInitCategories(),
+  ])
 
-  // парсим обратно в объект
-  const parsed = qs.parse(queryString)
+  if (!products || !categories) {
+    throw new Error('Error')
+  }
 
-  const queryData = {
-    params: parsed,
-    currentPage: Number((parsed.pagination as any)?.page) || 1,
-    pageSize: Number((parsed.pagination as any)?.pageSize) || 10,
+  console.log('query', queryData)
+
+  const updatedQueryData = {
+    ...queryData,
+    pagination: {
+      ...queryData.pagination,
+      pageCount: products.meta.pagination.pageCount,
+    },
   }
 
   return (
-    <ProductsPageStoreContextProvider queryData={queryData}>
+    <ProductsPageStoreContextProvider
+      products={products}
+      categories={categories}
+      queryData={updatedQueryData}
+    >
       <ProductsList />
     </ProductsPageStoreContextProvider>
   )

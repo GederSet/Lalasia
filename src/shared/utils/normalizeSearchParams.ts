@@ -1,4 +1,4 @@
-export function useNormalizeSearchParams(
+export function normalizeSearchParams(
   params: Record<string, string | string[] | undefined>
 ) {
   const result: Record<string, string> = {}

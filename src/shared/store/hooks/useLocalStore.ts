@@ -19,9 +19,7 @@ export const useLocalStore = <T extends ILocalStore>(creator: () => T): T => {
   // страницы он этого не делает.
 
   useEffect(() => {
-    console.log('test')
     return () => {
-      console.log('destroy 2')
       container.current?.destroy()
     }
   }, [])

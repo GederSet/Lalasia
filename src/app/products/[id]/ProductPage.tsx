@@ -8,11 +8,8 @@ import Text from '@components/Text'
 import { Meta } from '@shared/config/meta'
 import { useProductPageStore } from '@shared/store/ProductStore/ProductPageStoreProvider'
 import { observer } from 'mobx-react-lite'
-import { useParams } from 'next/navigation'
-import { useEffect } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import ErrorProduct from './components/ErrorProduct'
-import ErrorProducts from './components/ErrorProducts'
 import NullData from './components/NullData'
 import ProductInfo from './components/ProductInfo'
 import ProductPageSkeleton from './components/ProductPageSkeleton'
@@ -23,15 +20,15 @@ const productsSkeletons = [...new Array(3)].map((_, id) => (
 ))
 
 const ProductPageComponent = () => {
-  const params = useParams()
+  // const params = useParams()
   const productStore = useProductPageStore()
 
-  useEffect(() => {
-    const id = Array.isArray(params?.id) ? params.id[0] : params?.id
-    if (id) {
-      productStore.fetchProductAndRelated(id, 3)
-    }
-  }, [params?.id])
+  // useEffect(() => {
+  //   const id = Array.isArray(params?.id) ? params.id[0] : params?.id
+  //   if (id) {
+  //     productStore.fetchProductAndRelated(id, 3)
+  //   }
+  // }, [params?.id])
 
   return (
     <section className={s.product}>
@@ -66,29 +63,28 @@ const ProductPageComponent = () => {
             </Text>
           </div>
           <div className={s['product__body']}>
-            {productStore.relatedMeta === Meta.loading && productsSkeletons}
-            {productStore.relatedMeta === Meta.error && (
-              <ErrorProducts text='Error when uploading products' />
+            {productStore.relatedMeta === Meta.loading ? (
+              productsSkeletons
+            ) : productStore.relatedMeta === Meta.error ? (
+              <ErrorProduct text={'Error loading products'} />
+            ) : productStore.relatedProducts.length === 0 ? (
+              <NullData text={'No products found'} />
+            ) : (
+              productStore.relatedProducts.map((product) => (
+                <Card
+                  key={product.id}
+                  productNumberId={product.id}
+                  productId={product.documentId}
+                  className={s['product__card']}
+                  images={product.images}
+                  captionSlot={product.productCategory.title}
+                  title={product.title}
+                  subtitle={product.description}
+                  contentSlot={`${product.price}`}
+                  actionSlot={<Button>Add to Cart</Button>}
+                />
+              ))
             )}
-            {productStore.relatedMeta === Meta.success &&
-              (productStore.relatedProducts.length === 0 ? (
-                <NullData text='Unfortunately, the products were not found.' />
-              ) : (
-                productStore.relatedProducts.map((product) => (
-                  <Card
-                    key={product.id}
-                    productNumberId={product.id}
-                    productId={product.documentId}
-                    className={s['product__card']}
-                    images={product.images}
-                    captionSlot={product.productCategory.title}
-                    title={product.title}
-                    subtitle={product.description}
-                    contentSlot={`${product.price}`}
-                    actionSlot={<Button>Add to Cart</Button>}
-                  />
-                ))
-              ))}
           </div>
         </div>
       </div>

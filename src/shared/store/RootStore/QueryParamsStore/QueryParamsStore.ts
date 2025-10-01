@@ -1,17 +1,15 @@
 import { API_ENDPOINTS } from '@shared/config/api'
 import { Meta } from '@shared/config/meta'
 import { Method } from '@shared/config/method'
+import { Option } from '@shared/types/OptionType'
+import { PaginationApi } from '@shared/types/PaginationApiType'
+import { QueryParamsTypes } from '@shared/types/QueryParamsTypes'
+import { SearchParams } from '@shared/types/SearchParamsType'
+import { normalizeSearchParams } from '@shared/utils/normalizeSearchParams'
 import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import qs from 'qs'
 
-export type Option = { key: string; value: string }
 type CategoryTypeApi = { documentId: string; title: string }
-
-type PaginationApi = {
-  page: number
-  pageCount: number
-  pageSize: number
-}
 
 type PrivateFields =
   | '_params'
@@ -78,7 +76,6 @@ export default class QueryParamsStore implements IQueryParamsStore {
     })
   }
 
-  // computed getters
   get params() {
     return this._params
   }
@@ -109,7 +106,52 @@ export default class QueryParamsStore implements IQueryParamsStore {
     return this._params[key]
   }
 
-  // actions
+  static getNormalizeQueryParams(searchParams: SearchParams): QueryParamsTypes {
+    const normalized = normalizeSearchParams(searchParams)
+    const queryString = new URLSearchParams(normalized).toString()
+    const parsed = qs.parse(queryString)
+
+    return {
+      pagination: {
+        page: Number((parsed.pagination as any)?.page) || 1,
+        pageSize: Number((parsed.pagination as any)?.pageSize) || 10,
+        pageCount: Number((parsed.pagination as any)?.pageCount) || 0,
+      },
+      search: parsed.search as string | undefined,
+      categories: Array.isArray(parsed.categories)
+        ? (parsed.categories as any[]).map((c) => ({
+            key: String(c.key),
+            value: String(c.value),
+          }))
+        : undefined,
+    }
+  }
+
+  static async getInitCategories(): Promise<Option[] | undefined> {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}${API_ENDPOINTS.CATEGORIES}`,
+        {
+          method: Method.GET,
+          cache: 'no-store',
+        }
+      )
+      if (!response.ok) throw new Error('Failed to load categories')
+
+      const data = await response.json()
+
+      const categories = data.data.map((cat: CategoryTypeApi) => ({
+        key: cat.documentId,
+        value: cat.title,
+      }))
+
+      return categories
+    } catch (err) {
+      console.error(err)
+      return undefined
+    }
+  }
+
   async getCategories() {
     this._categoryLoading = Meta.loading
     this._categories = []
@@ -139,9 +181,42 @@ export default class QueryParamsStore implements IQueryParamsStore {
     }
   }
 
+  setInitialParams(params: {
+    search?: string
+    categories?: Option[]
+    pagination?: PaginationApi
+  }) {
+    if (params?.search !== undefined) {
+      this._params.search = params.search
+    } else {
+      this._params.search = ''
+    }
+
+    if (params?.categories !== undefined) {
+      this._categoryValue = params.categories
+      this._params.categories = params.categories
+    } else {
+      this._categoryValue = []
+      this._params.categories = []
+    }
+
+    if (params?.pagination !== undefined) {
+      this._currentPage = params.pagination.page
+      this._pageCount = params.pagination.pageCount
+      this._params.pagination = {
+        page: String(params.pagination.page),
+        pageSize: String(params.pagination.pageSize),
+      }
+    }
+  }
+
   setSearch(value: string) {
     this._params.search = value
     this.updateUrl()
+  }
+
+  setCategoryPrivate(categories: Option[]) {
+    this._categories = categories
   }
 
   setCategory(categories: Option[]) {
@@ -171,31 +246,6 @@ export default class QueryParamsStore implements IQueryParamsStore {
     if (!this._params.pagination) this._params.pagination = {}
     this._params.pagination.page = String(page)
     this.updateUrl()
-  }
-
-  setInitialParams(params: {
-    search?: string
-    categories?: Option[]
-    pagination?: PaginationApi
-  }) {
-    if (params.search !== undefined) {
-      this._params.search = params.search
-    }
-
-    if (params.categories !== undefined) {
-      this._categoryValue = params.categories
-      this._params.categories = params.categories
-    }
-
-    // pagination
-    if (params.pagination !== undefined) {
-      this._currentPage = params.pagination.page
-      this._pageCount = params.pagination.pageCount
-      this._params.pagination = {
-        page: String(params.pagination.page),
-        pageSize: String(params.pagination.pageSize),
-      }
-    }
   }
 
   reset() {

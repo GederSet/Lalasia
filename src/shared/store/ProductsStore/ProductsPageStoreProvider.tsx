@@ -1,18 +1,18 @@
 'use client'
 
-import { useRootStore } from '@/shared/store/RootStore'
-import { Option } from '@/shared/store/RootStore/QueryParamsStore/QueryParamsStore'
 import { useLocalStore } from '@/shared/store/hooks/useLocalStore'
+import { Option } from '@shared/types/OptionType'
+import { QueryParamsTypes } from '@shared/types/QueryParamsTypes'
+import { TotalProductsApi } from '@shared/types/TotalProductsApiType'
 import React from 'react'
+import { useRootStore } from '../RootStore'
 import ProductsPageStore from './ProductsPageStore'
 
 type ProductsPageStoreContextProviderProps = {
   children: React.ReactNode
-  queryData: {
-    params: Record<string, unknown>
-    currentPage: number
-    pageSize: number
-  }
+  products: TotalProductsApi
+  categories: Option[]
+  queryData: QueryParamsTypes
 }
 
 const ProductsPageStoreContext = React.createContext<ProductsPageStore | null>(
@@ -21,20 +21,18 @@ const ProductsPageStoreContext = React.createContext<ProductsPageStore | null>(
 
 export const ProductsPageStoreContextProvider: React.FC<
   ProductsPageStoreContextProviderProps
-> = ({ children, queryData }) => {
+> = ({ children, products, categories, queryData }) => {
   const rootStore = useRootStore()
 
-  rootStore.query.setInitialParams({
-    search: queryData.params.search as string | undefined,
-    categories: queryData.params.categories as Option[] | undefined,
-    pagination: {
-      page: queryData.currentPage,
-      pageCount: 0,
-      pageSize: queryData.pageSize,
-    },
-  })
+  rootStore.query.setInitialParams(queryData)
+  rootStore.query.setCategoryPrivate(categories)
 
-  const store = useLocalStore(() => new ProductsPageStore(rootStore.query))
+  const productsData = products.data
+  const productsCount = products.meta.pagination.total
+
+  const store = useLocalStore(
+    () => new ProductsPageStore(productsData, productsCount, rootStore.query)
+  )
 
   return (
     <ProductsPageStoreContext.Provider value={store}>

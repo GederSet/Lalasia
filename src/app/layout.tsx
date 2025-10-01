@@ -22,15 +22,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <SkeletonTheme baseColor='#d9d9d9' highlightColor='#bababa'>
-      <html lang='en'>
-        <body className={`${roboto.className}`}>
-          <RootStoreProvider>
+    <RootStoreProvider>
+      <SkeletonTheme baseColor='#d9d9d9' highlightColor='#bababa'>
+        <html lang='en'>
+          <body className={`${roboto.className}`}>
             <Header />
             {children}
-          </RootStoreProvider>
-        </body>
-      </html>
-    </SkeletonTheme>
+          </body>
+        </html>
+      </SkeletonTheme>
+    </RootStoreProvider>
   )
 }

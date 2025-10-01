@@ -29,7 +29,10 @@ export default class ProductPageStore implements IProductPageStore {
   private _productMeta: Meta = Meta.initial
   private _relatedMeta: Meta = Meta.initial
 
-  constructor() {
+  constructor(product: ProductType, relatedProducts: ProductType[]) {
+    this._currentProduct = product
+    this._relatedProducts = relatedProducts
+
     makeObservable<this, PrivateFields>(this, {
       _currentProduct: observable,
       _relatedProducts: observable,
@@ -64,10 +67,7 @@ export default class ProductPageStore implements IProductPageStore {
     return this._relatedMeta
   }
 
-  async getProductById(id: string) {
-    this._productMeta = Meta.loading
-    this._currentProduct = null
-
+  static async getInitProductById(id: string) {
     try {
       const query = qs.stringify(
         { populate: ['images', 'productCategory'] },
@@ -80,6 +80,28 @@ export default class ProductPageStore implements IProductPageStore {
       if (!res.ok) throw new Error('Failed to fetch product')
 
       const { data } = await res.json()
+      return data
+    } catch (e) {
+      console.error('Error when loading the product', e)
+    }
+  }
+
+  async getProductById(id: string) {
+    this._productMeta = Meta.loading
+    this._currentProduct = null
+
+    try {
+      const query = qs.stringify(
+        { populate: ['images', 'productCategory'] },
+        { encodeValuesOnly: true }
+      )
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}${API_ENDPOINTS.PRODUCTS}/${id}?${query}`,
+        { next: { revalidate: 300 } }
+      )
+      if (!res.ok) throw new Error('Failed to fetch product')
+
+      const { data } = await res.json()
       runInAction(() => {
         this._currentProduct = data
         this._productMeta = Meta.success
@@ -87,6 +109,34 @@ export default class ProductPageStore implements IProductPageStore {
     } catch (e) {
       console.error('Error when loading the product', e)
       runInAction(() => (this._productMeta = Meta.error))
+    }
+  }
+
+  static async getInitRelatedProducts(limit = 3) {
+    try {
+      const query = qs.stringify(
+        {
+          populate: ['images', 'productCategory'],
+          pagination: { pageSize: 50 },
+        },
+        { encodeValuesOnly: true }
+      )
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}${API_ENDPOINTS.PRODUCTS}?${query}`,
+        { next: { revalidate: 300 } }
+      )
+      if (!res.ok) throw new Error('Failed to fetch related products')
+
+      const { data } = await res.json()
+      const allProducts: ProductType[] = data || []
+
+      const relatedProducts = [...allProducts]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, limit)
+
+      return relatedProducts
+    } catch (e) {
+      console.error('Error loading Related Items', e)
     }
   }
 

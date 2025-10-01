@@ -1,6 +1,10 @@
 import { API_ENDPOINTS } from '@shared/config/api'
 import { Meta } from '@shared/config/meta'
 import { Method } from '@shared/config/method'
+import { Option } from '@shared/types/OptionType'
+import { PaginationApi } from '@shared/types/PaginationApiType'
+import { QueryParamsTypes } from '@shared/types/QueryParamsTypes'
+import { TotalProductsApi } from '@shared/types/TotalProductsApiType'
 import { action, computed, makeObservable, observable, reaction } from 'mobx'
 import qs from 'qs'
 import { ProductType } from '../../types/ProductType'
@@ -11,9 +15,9 @@ type PrivateFields = '_products' | '_meta' | '_productsCount'
 export type ProductsPageStoreInitData = {
   products: ProductType[]
   total: number
-  pagination: { page: number; pageSize: number; pageCount: number }
+  pagination: PaginationApi
   search?: string
-  categories?: { key: string; value: string }[]
+  categories?: Option[]
 }
 
 export interface IProductsPageStore {
@@ -38,8 +42,14 @@ export default class ProductsPageStore implements IProductsPageStore {
   private _qpCategory?: () => void
   private _qpPagination?: () => void
 
-  constructor(query: QueryParamsStore) {
+  constructor(
+    products: ProductType[],
+    productsCount: number,
+    query: QueryParamsStore
+  ) {
     this.query = query
+    this.setProducts(products)
+    this.setProductsCount(productsCount)
 
     makeObservable<this, PrivateFields>(this, {
       _products: observable,
@@ -101,6 +111,52 @@ export default class ProductsPageStore implements IProductsPageStore {
     this.loadProducts()
   }
 
+  static async getInitProducts(
+    query: QueryParamsTypes
+  ): Promise<TotalProductsApi | undefined> {
+    try {
+      const search = query.search
+      const categories = query.categories as { key: string }[] | undefined
+
+      const pagination = {
+        page: query.pagination.page,
+        pageSize: query.pagination.pageSize,
+      }
+
+      const filters: any = {
+        ...(categories?.length && {
+          productCategory: {
+            documentId: { $in: categories.map((c) => c.key) },
+          },
+        }),
+        ...(search && { title: { $containsi: search } }),
+      }
+
+      const queryStr = qs.stringify(
+        { populate: ['images', 'productCategory'], filters, pagination },
+        { encodeValuesOnly: true }
+      )
+
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BASE_URL +
+          API_ENDPOINTS.PRODUCTS +
+          '?' +
+          queryStr,
+        {
+          method: Method.GET,
+          next: { revalidate: 300 },
+        }
+      )
+
+      if (!response.ok) throw new Error()
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   async loadProducts() {
     this.setMeta(Meta.loading)
 
@@ -134,7 +190,7 @@ export default class ProductsPageStore implements IProductsPageStore {
           API_ENDPOINTS.PRODUCTS +
           '?' +
           queryStr,
-        { method: Method.GET, cache: 'no-store' }
+        { method: Method.GET, next: { revalidate: 300 } }
       )
 
       if (!response.ok) throw new Error()
@@ -151,99 +207,6 @@ export default class ProductsPageStore implements IProductsPageStore {
       this.setMeta(Meta.error)
     }
   }
-
-  // использовал для серверного компонента, но отказался
-  // static async getInitData(query: {
-  //   getParam: (key: string) => unknown
-  //   currentPage: number
-  //   pageSize: number
-  // }): Promise<{
-  //   isError: boolean
-  //   data?: {
-  //     products: ProductType[]
-  //     total: number
-  //     pagination: { page: number; pageSize: number; pageCount: number }
-  //     search?: string
-  //     categories?: { key: string; value: string }[]
-  //   }
-  // }> {
-  //   try {
-  //     const search = query.getParam('search') as string | undefined
-  //     const categories = query.getParam('categories') as
-  //       | { key: string; value: string }[]
-  //       | undefined
-
-  //     const pagination = {
-  //       page: query.currentPage,
-  //       pageSize: query.pageSize,
-  //     }
-
-  //     const filters: Record<string, any> = {
-  //       ...(categories?.length && {
-  //         productCategory: {
-  //           documentId: { $in: categories.map((c) => c.key) },
-  //         },
-  //       }),
-  //       ...(search ? { title: { $containsi: search } } : {}),
-  //     }
-
-  //     const queryStr = qs.stringify(
-  //       { populate: ['images', 'productCategory'], filters, pagination },
-  //       { encodeValuesOnly: true }
-  //     )
-
-  //     const response = await fetch(
-  //       process.env.NEXT_PUBLIC_BASE_URL +
-  //         API_ENDPOINTS.PRODUCTS +
-  //         '?' +
-  //         queryStr,
-  //       { method: Method.GET }
-  //     )
-
-  //     if (!response.ok) return { isError: true }
-
-  //     const data = await response.json()
-  //     const { page, pageCount, pageSize, total } = data.meta.pagination
-
-  //     return {
-  //       isError: false,
-  //       data: {
-  //         products: data.data,
-  //         total,
-  //         pagination: { page, pageSize, pageCount },
-  //         search,
-  //         categories,
-  //       },
-  //     }
-  //   } catch {
-  //     return { isError: true }
-  //   }
-  // }
-
-  // static fromJson(
-  //   initData: {
-  //     products: ProductType[]
-  //     total: number
-  //     pagination: { page: number; pageSize: number; pageCount: number }
-  //     search?: string
-  //     categories?: { key: string; value: string }[]
-  //   },
-  //   query: QueryParamsStore
-  // ) {
-  //   const store = new ProductsPageStore(query)
-
-  //   store.setProducts(initData.products)
-  //   store.setProductsCount(initData.total)
-  //   store.setMeta(Meta.success)
-
-  //   query.setInitialParams({
-  //     pagination: initData.pagination,
-  //     search: initData.search,
-  //     categories: initData.categories,
-  //   })
-
-  //   return store
-  // }
 
   destroy() {
     this._products = []
