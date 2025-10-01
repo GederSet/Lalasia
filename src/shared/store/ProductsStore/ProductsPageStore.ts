@@ -144,7 +144,7 @@ export default class ProductsPageStore implements IProductsPageStore {
           queryStr,
         {
           method: Method.GET,
-          next: { revalidate: 300 },
+          cache: 'no-store',
         }
       )
 
@@ -190,7 +190,7 @@ export default class ProductsPageStore implements IProductsPageStore {
           API_ENDPOINTS.PRODUCTS +
           '?' +
           queryStr,
-        { method: Method.GET, next: { revalidate: 300 } }
+        { method: Method.GET, cache: 'no-store' }
       )
 
       if (!response.ok) throw new Error()
