@@ -2,7 +2,13 @@ import { ProductsPageStoreContextProvider } from '@/shared/store/ProductsStore/P
 import ProductsPageStore from '@shared/store/ProductsStore'
 import QueryParamsStore from '@shared/store/RootStore/QueryParamsStore'
 import { SearchParams } from '@shared/types/SearchParamsType'
-import ProductsList from './ProductsList'
+import type { Metadata } from 'next'
+import ProductsList from './products/ProductsList'
+
+export const metadata: Metadata = {
+  title: 'Products',
+  description: 'Home page with all products',
+}
 
 export default async function ProductsPage({
   searchParams,
@@ -19,8 +25,6 @@ export default async function ProductsPage({
   if (!products || !categories) {
     throw new Error('Error')
   }
-
-  console.log('query', queryData)
 
   const updatedQueryData = {
     ...queryData,

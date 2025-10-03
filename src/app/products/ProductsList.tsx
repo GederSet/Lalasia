@@ -5,19 +5,23 @@ import Button from '@components/Button'
 import Card from '@components/Card'
 import ProductSkeleton from '@components/ProductSkeleton'
 import Text from '@components/Text'
+import LoupeIcon from '@shared/components/icons/LoupeIcon'
 import Input from '@shared/components/Input'
 import Loader from '@shared/components/Loader'
 import MultiDropdown, { Option } from '@shared/components/MultiDropdown'
 import Pagination from '@shared/components/Pagination'
-import LoupeIcon from '@shared/components/icons/LoupeIcon'
+import VirtualizedProductsList, {
+  VirtualizedProductsListRef,
+} from '@shared/components/VirtualizedProductsList'
 import { Meta } from '@shared/config/meta'
+import { useDeviceType } from '@shared/hooks/useDeviceType'
 import { useRootStore } from '@shared/store/RootStore'
 import { observer } from 'mobx-react-lite'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import 'react-loading-skeleton/dist/skeleton.css'
+import ErrorProduct from '../components/ErrorProduct'
+import NullData from '../components/NullData'
 import s from './Products.module.scss'
-import ErrorProduct from './components/ErrorProduct'
-import NullData from './components/NullData'
 
 const productsSkeletons = [...new Array(8)].map((_, id) => (
   <ProductSkeleton key={id} className={s['products__card-skeleton']} />
@@ -26,6 +30,8 @@ const productsSkeletons = [...new Array(8)].map((_, id) => (
 const ProductsList = () => {
   const rootStore = useRootStore()
   const productsStore = useProductsPageStore()
+  const { isMobile } = useDeviceType()
+  const virtualizedListRef = useRef<VirtualizedProductsListRef>(null)
 
   const categories = rootStore.query.categories
   const categoryValue = rootStore.query.categoryValue
@@ -42,15 +48,20 @@ const ProductsList = () => {
     productsStore.setFindProducts()
   }, [productsStore])
 
-  // useEffect(() => {
-  //   const urlSearch = rootStore.query.getParam('search') as string
-  //   const urlCategories = rootStore.query.getParam('categories') as Option[]
-  //   const urlPage = rootStore.query.currentPage
+  const handleLoadMore = useCallback(() => {
+    productsStore.loadMoreProducts()
+  }, [productsStore])
 
-  //   if (urlSearch || urlCategories?.length > 0 || urlPage > 1) {
-  //     productsStore.loadProducts()
-  //   }
-  // }, [])
+  const handleProductClick = useCallback((product: any) => {
+    // Здесь можно добавить логику для добавления в корзину или навигации
+    console.log('Product clicked:', product)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      rootStore.query.reset()
+    }
+  }, [])
 
   return (
     <section className={s.products}>
@@ -148,33 +159,55 @@ const ProductsList = () => {
             )}
           </div>
 
-          <div className={s.products__body}>
-            {productsStore.meta === Meta.loading ? (
-              productsSkeletons
-            ) : productsStore.meta === Meta.error ? (
+          {isMobile ? (
+            // Мобильная версия с виртуализацией и бесконечным скроллом
+            productsStore.meta === Meta.error ? (
               <ErrorProduct text={'Error loading products'} />
-            ) : productsStore.products.length === 0 ? (
+            ) : productsStore.products.length === 0 &&
+              productsStore.meta !== Meta.loading ? (
               <NullData text={'No products found'} />
             ) : (
-              productsStore.products.map((product) => (
-                <Card
-                  key={product.id}
-                  productNumberId={product.id}
-                  productId={product.documentId}
-                  className={s.products__card}
-                  images={product.images}
-                  captionSlot={product.productCategory.title}
-                  title={product.title}
-                  subtitle={product.description}
-                  contentSlot={`${product.price}`}
-                  actionSlot={<Button>Add to Cart</Button>}
+              <div className={s.products__virtualized}>
+                <VirtualizedProductsList
+                  ref={virtualizedListRef}
+                  products={productsStore.products}
+                  hasMore={productsStore.hasMore}
+                  loading={productsStore.meta === Meta.loading}
+                  onLoadMore={handleLoadMore}
+                  onProductClick={handleProductClick}
                 />
-              ))
-            )}
-          </div>
+              </div>
+            )
+          ) : (
+            <>
+              <div className={s.products__body}>
+                {productsStore.meta === Meta.loading ? (
+                  productsSkeletons
+                ) : productsStore.meta === Meta.error ? (
+                  <ErrorProduct text={'Error loading products'} />
+                ) : productsStore.products.length === 0 ? (
+                  <NullData text={'No products found'} />
+                ) : (
+                  productsStore.products.map((product) => (
+                    <Card
+                      key={product.id}
+                      productNumberId={product.id}
+                      productId={product.documentId}
+                      className={s.products__card}
+                      images={product.images}
+                      captionSlot={product.productCategory.title}
+                      title={product.title}
+                      subtitle={product.description}
+                      contentSlot={`${product.price}`}
+                      actionSlot={<Button>Add to Cart</Button>}
+                    />
+                  ))
+                )}
+              </div>
+              {productsStore.productsCount !== 0 && <Pagination />}
+            </>
+          )}
         </div>
-
-        {productsStore.productsCount !== 0 && <Pagination />}
       </div>
     </section>
   )

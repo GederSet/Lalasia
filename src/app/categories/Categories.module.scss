@@ -1,0 +1,41 @@
+@use '@styles/vars' as *;
+@use '@styles/mixins' as mixins;
+
+.categories {
+  --card-gap: 20px;
+  padding: calc(80px + var(--header-height)) 0 100px 0;
+  @include mixins.respond($media-query-425) {
+    padding: calc(50px + var(--header-height)) 0 80px 0;
+  }
+
+  &__container {
+    max-width: $container-width;
+    padding: 0 15px;
+    margin: 0 auto;
+  }
+
+  // .categories__body
+
+  &__body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--card-gap);
+    margin-right: calc(-1 * var(--card-gap));
+  }
+
+  // .categories__card
+
+  &__card {
+    flex: 0 0 calc(25% - var(--card-gap));
+
+    @include mixins.respond(905px) {
+      flex: 0 0 calc(33.333% - var(--card-gap));
+    }
+    @include mixins.respond(645px) {
+      flex: 0 0 calc(50% - var(--card-gap));
+    }
+    @include mixins.respond($media-query-425) {
+      flex: 0 0 calc(100% - var(--card-gap));
+    }
+  }
+}

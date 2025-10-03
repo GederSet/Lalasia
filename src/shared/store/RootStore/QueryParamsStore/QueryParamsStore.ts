@@ -1,6 +1,7 @@
 import { API_ENDPOINTS } from '@shared/config/api'
 import { Meta } from '@shared/config/meta'
 import { Method } from '@shared/config/method'
+import { CategoryTypeApi } from '@shared/types/CategoryTypeApi'
 import { Option } from '@shared/types/OptionType'
 import { PaginationApi } from '@shared/types/PaginationApiType'
 import { QueryParamsTypes } from '@shared/types/QueryParamsTypes'
@@ -8,8 +9,6 @@ import { SearchParams } from '@shared/types/SearchParamsType'
 import { normalizeSearchParams } from '@shared/utils/normalizeSearchParams'
 import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import qs from 'qs'
-
-type CategoryTypeApi = { documentId: string; title: string }
 
 type PrivateFields =
   | '_params'
@@ -161,7 +160,7 @@ export default class QueryParamsStore implements IQueryParamsStore {
         `${process.env.NEXT_PUBLIC_BASE_URL}${API_ENDPOINTS.CATEGORIES}`,
         {
           method: Method.GET,
-          cache: 'no-store',
+          next: { revalidate: 300 },
         }
       )
       if (!response.ok) throw new Error('Failed to load categories')
@@ -188,17 +187,20 @@ export default class QueryParamsStore implements IQueryParamsStore {
   }) {
     if (params?.search !== undefined) {
       this._params.search = params.search
-    } else {
-      this._params.search = ''
     }
+    // else {
+    //   this._params.search = ''
+    // }
 
     if (params?.categories !== undefined) {
+      console.log('setInitialParams categories', params.categories)
       this._categoryValue = params.categories
       this._params.categories = params.categories
-    } else {
-      this._categoryValue = []
-      this._params.categories = []
     }
+    // else {
+    //   this._categoryValue = []
+    //   this._params.categories = []
+    // }
 
     if (params?.pagination !== undefined) {
       this._currentPage = params.pagination.page

@@ -25,13 +25,18 @@ export const ProductsPageStoreContextProvider: React.FC<
   const rootStore = useRootStore()
 
   rootStore.query.setInitialParams(queryData)
-  rootStore.query.setCategoryPrivate(categories)
 
   const productsData = products.data
   const productsCount = products.meta.pagination.total
 
   const store = useLocalStore(
-    () => new ProductsPageStore(productsData, productsCount, rootStore.query)
+    () =>
+      new ProductsPageStore(
+        productsData,
+        productsCount,
+        rootStore.query,
+        categories
+      )
   )
 
   return (

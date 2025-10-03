@@ -203,3 +203,14 @@
     }
   }
 }
+
+.products__virtualized {
+  height: 70vh; // Фиксированная высота для виртуализации
+  min-height: 400px;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    height: 60vh;
+    min-height: 300px;
+  }
+}

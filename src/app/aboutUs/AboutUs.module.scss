@@ -1,0 +1,66 @@
+@use '@styles/vars' as *;
+@use '@styles/mixins' as mixins;
+
+.about-us {
+  padding: calc(60px + var(--header-height)) 0 113px 0;
+  @include mixins.respond($media-query-425) {
+    padding-bottom: 50px;
+  }
+  // .about-us__container
+
+  &__container {
+    max-width: $container-width;
+    padding: 0 15px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  // .about-us__box
+
+  &__box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .about-us__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  // .about-us__title
+
+  &__title {
+    line-height: 1.2;
+    font-size: 24px;
+    font-weight: 500;
+    // .about-us__title_main
+
+    &_main {
+      font-size: 32px;
+    }
+  }
+
+  // .about-us__text
+
+  &__text {
+    line-height: 1.5;
+    &_circle {
+      position: relative;
+      padding-left: 15px;
+      &::before {
+        content: '';
+        position: absolute;
+        top: 9px;
+        left: 0;
+        width: 7px;
+        height: 7px;
+        background-color: $brand;
+        border-radius: 10px;
+      }
+    }
+  }
+}

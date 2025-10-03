@@ -1,0 +1,17 @@
+.sentinel {
+  height: 1px;
+  width: 100%;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.endMessage {
+  text-align: center;
+  padding: 20px 0;
+  color: black;
+  font-size: 14px;
+}

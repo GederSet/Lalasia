@@ -24,11 +24,13 @@ export interface IProductsPageStore {
   products: ProductType[]
   productsCount: number
   meta: Meta
+  hasMore: boolean
 
   setProducts(products: ProductType[]): void
   setProductsCount(productsCount: number): void
   setMeta(meta: Meta): void
   loadProducts(): Promise<void>
+  loadMoreProducts(): Promise<void>
   setFindProducts(): void
   destroy(): void
 }
@@ -45,11 +47,13 @@ export default class ProductsPageStore implements IProductsPageStore {
   constructor(
     products: ProductType[],
     productsCount: number,
-    query: QueryParamsStore
+    query: QueryParamsStore,
+    categories: Option[]
   ) {
     this.query = query
     this.setProducts(products)
     this.setProductsCount(productsCount)
+    this.query.setCategoryPrivate(categories)
 
     makeObservable<this, PrivateFields>(this, {
       _products: observable,
@@ -58,11 +62,13 @@ export default class ProductsPageStore implements IProductsPageStore {
 
       products: computed,
       meta: computed,
+      hasMore: computed,
 
       setProducts: action,
       setProductsCount: action,
       setMeta: action,
       loadProducts: action,
+      loadMoreProducts: action,
       setFindProducts: action,
     })
 
@@ -88,6 +94,10 @@ export default class ProductsPageStore implements IProductsPageStore {
 
   get productsCount() {
     return this._productsCount
+  }
+
+  get hasMore() {
+    return this._products.length < this._productsCount
   }
 
   get meta() {
@@ -144,7 +154,7 @@ export default class ProductsPageStore implements IProductsPageStore {
           queryStr,
         {
           method: Method.GET,
-          cache: 'no-store',
+          next: { revalidate: 300 },
         }
       )
 
@@ -190,7 +200,10 @@ export default class ProductsPageStore implements IProductsPageStore {
           API_ENDPOINTS.PRODUCTS +
           '?' +
           queryStr,
-        { method: Method.GET, cache: 'no-store' }
+        {
+          method: Method.GET,
+          next: { revalidate: 300 },
+        }
       )
 
       if (!response.ok) throw new Error()
@@ -203,6 +216,63 @@ export default class ProductsPageStore implements IProductsPageStore {
 
       const { page, pageCount, pageSize } = data.meta.pagination
       this.query.setPagination({ page, pageCount, pageSize })
+    } catch {
+      this.setMeta(Meta.error)
+    }
+  }
+
+  async loadMoreProducts() {
+    if (!this.hasMore || this.meta === Meta.loading) return
+
+    this.setMeta(Meta.loading)
+
+    try {
+      const search = this.query.getParam('search')
+      const categories = this.query.getParam('categories') as
+        | { key: string }[]
+        | undefined
+
+      // Вычисляем следующую страницу для загрузки
+      const currentPage =
+        Math.ceil(this._products.length / this.query.pageSize) + 1
+
+      const pagination = {
+        page: currentPage,
+        pageSize: this.query.pageSize,
+      }
+
+      const filters: any = {
+        ...(categories?.length && {
+          productCategory: {
+            documentId: { $in: categories.map((c) => c.key) },
+          },
+        }),
+        ...(search && { title: { $containsi: search } }),
+      }
+
+      const queryStr = qs.stringify(
+        { populate: ['images', 'productCategory'], filters, pagination },
+        { encodeValuesOnly: true }
+      )
+
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BASE_URL +
+          API_ENDPOINTS.PRODUCTS +
+          '?' +
+          queryStr,
+        {
+          method: Method.GET,
+          next: { revalidate: 300 },
+        }
+      )
+
+      if (!response.ok) throw new Error()
+
+      const data = await response.json()
+
+      this.setProducts([...this._products, ...data.data])
+      this.setProductsCount(data.meta.pagination.total)
+      this.setMeta(Meta.success)
     } catch {
       this.setMeta(Meta.error)
     }
