@@ -3,8 +3,13 @@ import { ProductPageStoreContextProvider } from '@shared/store/ProductStore/Prod
 import { notFound } from 'next/navigation'
 import ProductPageComponent from './ProductPage'
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const product = await ProductPageStore.getInitProductById(params.id)
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const product = await ProductPageStore.getInitProductById(id)
 
   if (!product) {
     notFound()
@@ -24,10 +29,11 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 export default async function ProductPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const [product, relatedProducts] = await Promise.all([
-    ProductPageStore.getInitProductById(params.id),
+    ProductPageStore.getInitProductById(id),
     ProductPageStore.getInitRelatedProducts(),
   ])
 

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }) {
   const queryData = QueryParamsStore.getNormalizeQueryParams(await searchParams)
 

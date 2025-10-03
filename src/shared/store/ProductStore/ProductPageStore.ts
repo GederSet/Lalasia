@@ -75,7 +75,7 @@ export default class ProductPageStore implements IProductPageStore {
       )
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}${API_ENDPOINTS.PRODUCTS}/${id}?${query}`,
-        { cache: 'no-store' }
+        { next: { revalidate: 3600 } }
       )
       if (!res.ok) throw new Error('Failed to fetch product')
 
@@ -154,7 +154,7 @@ export default class ProductPageStore implements IProductPageStore {
       )
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}${API_ENDPOINTS.PRODUCTS}?${query}`,
-        { cache: 'no-store' }
+        { next: { revalidate: 3600 } } // Кэшируем на 1 час
       )
       if (!res.ok) throw new Error('Failed to fetch related products')
 

@@ -29,7 +29,7 @@ export default class CategoriesPageStore {
         `${process.env.NEXT_PUBLIC_BASE_URL}${API_ENDPOINTS.CATEGORIES}`,
         {
           method: Method.GET,
-          cache: 'no-store',
+          next: { revalidate: 3600 },
         }
       )
 
@@ -75,7 +75,7 @@ export default class CategoriesPageStore {
               `${process.env.NEXT_PUBLIC_BASE_URL}${API_ENDPOINTS.PRODUCTS}?${queryStr}`,
               {
                 method: Method.GET,
-                cache: 'no-store',
+                next: { revalidate: 3600 }, // Кэшируем на 1 час
               }
             )
 
