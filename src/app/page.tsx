@@ -27,9 +27,6 @@ export default async function ProductsPage({
     throw new Error('Error')
   }
 
-  console.log('products', products)
-  console.log('allProducts', allProducts)
-
   const updatedQueryData = {
     ...queryData,
     pagination: {

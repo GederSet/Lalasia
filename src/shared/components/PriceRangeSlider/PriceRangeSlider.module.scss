@@ -63,7 +63,7 @@
       opacity: 1 !important;
 
       &:hover {
-        border-color: darken($brand, 10%) !important;
+        border-color: $brand !important;
         background: white !important;
         transform: scale(1.1);
       }

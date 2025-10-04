@@ -54,8 +54,8 @@ export default class QueryParamsStore implements IQueryParamsStore {
   private _currentPage = 1
   private _pageCount = 1
   private _pageSize = 10
-  private _priceRange: { min: number; max: number } = { min: 0, max: 100 }
-  private _priceRangeGlobal: { min: number; max: number } = { min: 0, max: 100 }
+  private _priceRange: { min: number; max: number } = { min: 10, max: 97 }
+  private _priceRangeGlobal: { min: number; max: number } = { min: 10, max: 97 }
 
   constructor() {
     makeObservable<this, PrivateFields>(this, {
@@ -209,12 +209,15 @@ export default class QueryParamsStore implements IQueryParamsStore {
     }
   }
 
-  setInitialParams(params: {
-    search?: string
-    categories?: Option[]
-    pagination?: PaginationApi
-    priceRange?: { min: number; max: number }
-  }) {
+  setInitialParams(
+    params: {
+      search?: string
+      categories?: Option[]
+      pagination?: PaginationApi
+      priceRange?: { min: number; max: number }
+    },
+    allProducts: ProductType[]
+  ) {
     if (params?.search !== undefined) {
       this._params.search = params.search
     }
