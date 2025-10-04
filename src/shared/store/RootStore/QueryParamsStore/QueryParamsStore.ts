@@ -209,15 +209,12 @@ export default class QueryParamsStore implements IQueryParamsStore {
     }
   }
 
-  setInitialParams(
-    params: {
-      search?: string
-      categories?: Option[]
-      pagination?: PaginationApi
-      priceRange?: { min: number; max: number }
-    },
-    allProducts: ProductType[]
-  ) {
+  setInitialParams(params: {
+    search?: string
+    categories?: Option[]
+    pagination?: PaginationApi
+    priceRange?: { min: number; max: number }
+  }) {
     if (params?.search !== undefined) {
       this._params.search = params.search
     }
