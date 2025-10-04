@@ -4,6 +4,11 @@ import cn from 'classnames'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+import { Navigation, Pagination } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
 import Popup from '../Popup'
 import Text from '../Text'
 import s from './Card.module.scss'
@@ -72,7 +77,27 @@ const Card: React.FC<CardProps> = ({
         className={cn(s.card, className)}
       >
         <div className={s.card__img}>
-          <Image fill src={images[0].url} alt='product' />
+          {images.length > 1 ? (
+            <Swiper
+              modules={[Navigation, Pagination]}
+              spaceBetween={0}
+              slidesPerView={1}
+              navigation={true}
+              pagination={{ clickable: true }}
+              loop={true}
+              className={s.card__swiper}
+            >
+              {images.map((image, index) => (
+                <SwiperSlide key={image.id || index}>
+                  <div className={s.card__slide}>
+                    <Image fill src={image.url} alt={`product ${index + 1}`} />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <Image fill src={images[0].url} alt='product' />
+          )}
         </div>
         <div className={s.card__body}>
           <div className={s.card__wrapper}>

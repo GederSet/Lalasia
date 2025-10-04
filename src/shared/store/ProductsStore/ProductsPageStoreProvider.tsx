@@ -11,6 +11,7 @@ import ProductsPageStore from './ProductsPageStore'
 type ProductsPageStoreContextProviderProps = {
   children: React.ReactNode
   products: TotalProductsApi
+  allProducts: TotalProductsApi
   categories: Option[]
   queryData: QueryParamsTypes
 }
@@ -21,12 +22,13 @@ const ProductsPageStoreContext = React.createContext<ProductsPageStore | null>(
 
 export const ProductsPageStoreContextProvider: React.FC<
   ProductsPageStoreContextProviderProps
-> = ({ children, products, categories, queryData }) => {
+> = ({ children, products, allProducts, categories, queryData }) => {
   const rootStore = useRootStore()
 
   rootStore.query.setInitialParams(queryData)
 
   const productsData = products.data
+  const allProductsData = allProducts.data
   const productsCount = products.meta.pagination.total
 
   const store = useLocalStore(
@@ -34,6 +36,7 @@ export const ProductsPageStoreContextProvider: React.FC<
       new ProductsPageStore(
         productsData,
         productsCount,
+        allProductsData,
         rootStore.query,
         categories
       )

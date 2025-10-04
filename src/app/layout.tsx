@@ -26,8 +26,10 @@ export default function RootLayout({
       <SkeletonTheme baseColor='#d9d9d9' highlightColor='#bababa'>
         <html lang='en'>
           <body className={`${roboto.className}`}>
-            <Header />
-            {children}
+            <div style={{ overflowX: 'hidden' }}>
+              <Header />
+              {children}
+            </div>
           </body>
         </html>
       </SkeletonTheme>

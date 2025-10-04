@@ -6,18 +6,17 @@ import Card from '@components/Card'
 import ProductSkeleton from '@components/ProductSkeleton'
 import Text from '@components/Text'
 import LoupeIcon from '@shared/components/icons/LoupeIcon'
+import InfiniteScroll from '@shared/components/InfiniteScroll'
 import Input from '@shared/components/Input'
 import Loader from '@shared/components/Loader'
 import MultiDropdown, { Option } from '@shared/components/MultiDropdown'
 import Pagination from '@shared/components/Pagination'
-import VirtualizedProductsList, {
-  VirtualizedProductsListRef,
-} from '@shared/components/VirtualizedProductsList'
+import PriceRangeSlider from '@shared/components/PriceRangeSlider'
 import { Meta } from '@shared/config/meta'
 import { useDeviceType } from '@shared/hooks/useDeviceType'
 import { useRootStore } from '@shared/store/RootStore'
 import { observer } from 'mobx-react-lite'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import 'react-loading-skeleton/dist/skeleton.css'
 import ErrorProduct from '../components/ErrorProduct'
 import NullData from '../components/NullData'
@@ -31,7 +30,6 @@ const ProductsList = () => {
   const rootStore = useRootStore()
   const productsStore = useProductsPageStore()
   const { isMobile } = useDeviceType()
-  const virtualizedListRef = useRef<VirtualizedProductsListRef>(null)
 
   const categories = rootStore.query.categories
   const categoryValue = rootStore.query.categoryValue
@@ -44,6 +42,12 @@ const ProductsList = () => {
     rootStore.query.setSearch(value)
   }
 
+  const handlePriceRangeChange = (value: [number, number]) => {}
+
+  const handlePriceRangeChangeComplete = (value: [number, number]) => {
+    rootStore.query.setPriceRange(value[0], value[1])
+  }
+
   const handleFindProducts = useCallback(() => {
     productsStore.setFindProducts()
   }, [productsStore])
@@ -51,11 +55,6 @@ const ProductsList = () => {
   const handleLoadMore = useCallback(() => {
     productsStore.loadMoreProducts()
   }, [productsStore])
-
-  const handleProductClick = useCallback((product: any) => {
-    // Здесь можно добавить логику для добавления в корзину или навигации
-    console.log('Product clicked:', product)
-  }, [])
 
   useEffect(() => {
     return () => {
@@ -110,6 +109,13 @@ const ProductsList = () => {
             >
               Find now
             </Button>
+
+            <Button
+              className={s['products__navigate-clear']}
+              onClick={handleClear}
+            >
+              Clear Filters
+            </Button>
           </div>
 
           <MultiDropdown
@@ -126,12 +132,20 @@ const ProductsList = () => {
             }
           />
 
-          <Button
-            className={s['products__navigate-clear']}
-            onClick={handleClear}
-          >
-            Clear Filters
-          </Button>
+          <PriceRangeSlider
+            className={s['products__price-range-slider']}
+            min={rootStore.query.priceRangeGlobal?.min}
+            max={rootStore.query.priceRangeGlobal?.max}
+            value={[
+              (rootStore.query.getParam('priceRange') as any)?.min ||
+                rootStore.query.priceRange?.min,
+              (rootStore.query.getParam('priceRange') as any)?.max ||
+                rootStore.query.priceRange?.max,
+            ]}
+            onChange={handlePriceRangeChange}
+            onChangeComplete={handlePriceRangeChangeComplete}
+            step={1}
+          />
         </div>
 
         <div className={s.products__wrapper}>
@@ -160,7 +174,6 @@ const ProductsList = () => {
           </div>
 
           {isMobile ? (
-            // Мобильная версия с виртуализацией и бесконечным скроллом
             productsStore.meta === Meta.error ? (
               <ErrorProduct text={'Error loading products'} />
             ) : productsStore.products.length === 0 &&
@@ -168,14 +181,29 @@ const ProductsList = () => {
               <NullData text={'No products found'} />
             ) : (
               <div className={s.products__virtualized}>
-                <VirtualizedProductsList
-                  ref={virtualizedListRef}
-                  products={productsStore.products}
+                <InfiniteScroll
                   hasMore={productsStore.hasMore}
                   loading={productsStore.meta === Meta.loading}
                   onLoadMore={handleLoadMore}
-                  onProductClick={handleProductClick}
-                />
+                  threshold={200}
+                >
+                  <div className={s.products__body}>
+                    {productsStore.products.map((product) => (
+                      <Card
+                        key={product.id}
+                        productNumberId={product.id}
+                        productId={product.documentId}
+                        className={s.products__card}
+                        images={product.images}
+                        captionSlot={product.productCategory.title}
+                        title={product.title}
+                        subtitle={product.description}
+                        contentSlot={`${product.price}`}
+                        actionSlot={<Button>Add to Cart</Button>}
+                      />
+                    ))}
+                  </div>
+                </InfiniteScroll>
               </div>
             )
           ) : (

@@ -5,5 +5,5 @@ export type ProductType = {
   description: string
   price: number
   images: { id: number; url: string }[]
-  productCategory: { title: string }
+  productCategory: { id: number; title: string }
 }

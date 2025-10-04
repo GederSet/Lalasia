@@ -52,7 +52,13 @@
 
   &__card,
   &__card-skeleton {
+    width: calc(33.333% - 79px);
     flex: 0 0 calc(33.333% - 79px);
+  }
+
+  &__slider {
+    display: flex;
+    gap: 10px;
   }
 }
 
@@ -68,6 +74,10 @@
 
     &__count {
       font-size: 18px;
+    }
+
+    &__wrapper {
+      gap: 10px;
     }
 
     &__body {

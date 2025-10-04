@@ -1,23 +1,15 @@
 'use client'
 
 import BackLink from '@components/BackLink'
-import Button from '@components/Button'
-import Card from '@components/Card'
-import ProductSkeleton from '@components/ProductSkeleton'
 import Text from '@components/Text'
 import { Meta } from '@shared/config/meta'
 import { useProductPageStore } from '@shared/store/ProductStore/ProductPageStoreProvider'
 import { observer } from 'mobx-react-lite'
 import Skeleton from 'react-loading-skeleton'
-import ErrorProduct from './components/ErrorProduct'
-import NullData from './components/NullData'
 import ProductInfo from './components/ProductInfo'
 import ProductPageSkeleton from './components/ProductPageSkeleton'
+import ProductSlider from './components/ProductSlider'
 import s from './Product.module.scss'
-
-const productsSkeletons = [...new Array(3)].map((_, id) => (
-  <ProductSkeleton key={id} className={s['product__card-skeleton']} />
-))
 
 const ProductPageComponent = () => {
   // const params = useParams()
@@ -43,7 +35,7 @@ const ProductPageComponent = () => {
 
         {productStore.productMeta === Meta.loading && <ProductPageSkeleton />}
         {productStore.productMeta === Meta.error && (
-          <ErrorProduct text={'An error occurred when loading the product'} />
+          <div>An error occurred when loading the product</div>
         )}
         {productStore.currentProduct && (
           <ProductInfo
@@ -62,30 +54,12 @@ const ProductPageComponent = () => {
               Related Items
             </Text>
           </div>
-          <div className={s['product__body']}>
-            {productStore.relatedMeta === Meta.loading ? (
-              productsSkeletons
-            ) : productStore.relatedMeta === Meta.error ? (
-              <ErrorProduct text={'Error loading products'} />
-            ) : productStore.relatedProducts.length === 0 ? (
-              <NullData text={'No products found'} />
-            ) : (
-              productStore.relatedProducts.map((product) => (
-                <Card
-                  key={product.id}
-                  productNumberId={product.id}
-                  productId={product.documentId}
-                  className={s['product__card']}
-                  images={product.images}
-                  captionSlot={product.productCategory.title}
-                  title={product.title}
-                  subtitle={product.description}
-                  contentSlot={`${product.price}`}
-                  actionSlot={<Button>Add to Cart</Button>}
-                />
-              ))
-            )}
-          </div>
+          <ProductSlider
+            className={s['product__slider']}
+            meta={productStore.relatedMeta}
+            products={productStore.relatedProducts}
+            skeletonCount={3}
+          />
         </div>
       </div>
     </section>

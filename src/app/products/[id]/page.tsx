@@ -32,14 +32,18 @@ export default async function ProductPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [product, relatedProducts] = await Promise.all([
-    ProductPageStore.getInitProductById(id),
-    ProductPageStore.getInitRelatedProducts(),
-  ])
+  const product = await ProductPageStore.getInitProductById(id)
 
-  if (!product || !relatedProducts) {
+  if (!product) {
     notFound()
   }
+
+  const relatedProducts =
+    (await ProductPageStore.getInitRelatedProductsByCategory(
+      product.productCategory.id,
+      product.id,
+      50
+    )) || []
 
   return (
     <ProductPageStoreContextProvider

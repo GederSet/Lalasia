@@ -7,8 +7,67 @@
 
   &__img {
     position: relative;
+    width: 46%;
     flex: 1 1 50%;
     aspect-ratio: 1;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  &__swiper {
+    width: 100%;
+    height: 100%;
+
+    :global(.swiper-pagination-bullet-active) {
+      background-color: $swiper-bullet;
+    }
+
+    .swiper-slide {
+      position: relative;
+    }
+
+    .swiper-pagination {
+      bottom: 10px;
+    }
+
+    // Стили для стрелочек навигации
+    :global(.swiper-button-next),
+    :global(.swiper-button-prev) {
+      color: $swiper-arrow;
+      width: 30px;
+      height: 30px;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $swiper-arrow-hover;
+      }
+    }
+
+    :global(.swiper-button-next) {
+      right: 10px;
+    }
+
+    :global(.swiper-button-prev) {
+      left: 10px;
+    }
+
+    // Скрываем стрелки на мобильных устройствах
+    @media (max-width: $media-query-768) {
+      :global(.swiper-button-next),
+      :global(.swiper-button-prev) {
+        display: none;
+      }
+    }
+  }
+
+  &__slide {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
     img {
       width: 100%;
       height: 100%;
@@ -86,6 +145,9 @@
 @media (max-width: $media-query-768) {
   .product-info {
     flex-direction: column;
+    &__img {
+      width: 100%;
+    }
   }
 }
 

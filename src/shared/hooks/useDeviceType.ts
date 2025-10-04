@@ -7,10 +7,9 @@ export const useDeviceType = () => {
 
   useEffect(() => {
     const checkDevice = () => {
-      setIsMobile(window.innerWidth <= 425)
+      setIsMobile(window.innerWidth <= 768)
     }
 
-    // Проверяем при первой загрузке
     checkDevice()
 
     window.addEventListener('resize', checkDevice)

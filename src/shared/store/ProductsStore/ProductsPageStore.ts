@@ -43,10 +43,12 @@ export default class ProductsPageStore implements IProductsPageStore {
 
   private _qpCategory?: () => void
   private _qpPagination?: () => void
+  private _qpPriceRage?: () => void
 
   constructor(
     products: ProductType[],
     productsCount: number,
+    allProducts: ProductType[],
     query: QueryParamsStore,
     categories: Option[]
   ) {
@@ -54,6 +56,7 @@ export default class ProductsPageStore implements IProductsPageStore {
     this.setProducts(products)
     this.setProductsCount(productsCount)
     this.query.setCategoryPrivate(categories)
+    this.query.setPriceRangeGlobalPrivate(allProducts)
 
     makeObservable<this, PrivateFields>(this, {
       _products: observable,
@@ -83,6 +86,14 @@ export default class ProductsPageStore implements IProductsPageStore {
     this._qpPagination = reaction(
       () => this.query.currentPage,
       () => {
+        this.loadProducts()
+      }
+    )
+
+    this._qpPriceRage = reaction(
+      () => this.query.getParam('priceRange'),
+      () => {
+        this.query.setPage(1)
         this.loadProducts()
       }
     )
@@ -127,6 +138,7 @@ export default class ProductsPageStore implements IProductsPageStore {
     try {
       const search = query.search
       const categories = query.categories as { key: string }[] | undefined
+      const priceRange = query.priceRange
 
       const pagination = {
         page: query.pagination.page,
@@ -140,7 +152,47 @@ export default class ProductsPageStore implements IProductsPageStore {
           },
         }),
         ...(search && { title: { $containsi: search } }),
+        ...(priceRange && {
+          price: {
+            $gte: priceRange.min,
+            $lte: priceRange.max,
+          },
+        }),
       }
+
+      const queryStr = qs.stringify(
+        { populate: ['images', 'productCategory'], filters, pagination },
+        { encodeValuesOnly: true }
+      )
+
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BASE_URL +
+          API_ENDPOINTS.PRODUCTS +
+          '?' +
+          queryStr,
+        {
+          method: Method.GET,
+          next: { revalidate: 300 },
+        }
+      )
+
+      if (!response.ok) throw new Error()
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  static async getInitAllProducts(): Promise<TotalProductsApi | undefined> {
+    try {
+      const pagination = {
+        page: 1,
+        pageSize: 1000,
+      }
+
+      const filters: any = {}
 
       const queryStr = qs.stringify(
         { populate: ['images', 'productCategory'], filters, pagination },
@@ -175,6 +227,9 @@ export default class ProductsPageStore implements IProductsPageStore {
       const categories = this.query.getParam('categories') as
         | { key: string }[]
         | undefined
+      const priceRange = this.query.getParam('priceRange') as
+        | { min: number; max: number }
+        | undefined
 
       const pagination = {
         page: this.query.currentPage,
@@ -188,6 +243,12 @@ export default class ProductsPageStore implements IProductsPageStore {
           },
         }),
         ...(search && { title: { $containsi: search } }),
+        ...(priceRange && {
+          price: {
+            $gte: priceRange.min,
+            $lte: priceRange.max,
+          },
+        }),
       }
 
       const queryStr = qs.stringify(
@@ -284,5 +345,6 @@ export default class ProductsPageStore implements IProductsPageStore {
 
     this._qpCategory?.()
     this._qpPagination?.()
+    this._qpPriceRage?.()
   }
 }

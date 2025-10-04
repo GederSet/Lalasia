@@ -1,4 +1,5 @@
 @use '@styles/vars' as *;
+@use '@styles/mixins' as mixins;
 
 .card {
   background-color: white;
@@ -18,6 +19,63 @@
     height: 100%;
     object-fit: contain;
   }
+
+  &__swiper {
+    width: 100%;
+    height: 100%;
+
+    :global(.swiper-pagination-bullet-active) {
+      background-color: $swiper-bullet;
+    }
+
+    .swiper-slide {
+      position: relative;
+    }
+
+    .swiper-pagination {
+      bottom: 10px;
+    }
+
+    :global(.swiper-button-next),
+    :global(.swiper-button-prev) {
+      color: $swiper-arrow;
+      width: 30px;
+      height: 30px;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $swiper-arrow-hover;
+      }
+    }
+
+    :global(.swiper-button-next) {
+      right: 10px;
+    }
+
+    :global(.swiper-button-prev) {
+      left: 10px;
+    }
+
+    @include mixins.respond($media-query-768) {
+      :global(.swiper-button-next),
+      :global(.swiper-button-prev) {
+        display: none;
+      }
+    }
+  }
+
+  &__slide {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
   &__body {
     display: flex;
     flex-direction: column;

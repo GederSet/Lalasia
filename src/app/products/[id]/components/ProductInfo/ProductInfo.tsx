@@ -6,6 +6,11 @@ import { ProductType } from '@shared/types/ProductType'
 import cn from 'classnames'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
 import s from './ProductInfo.module.scss'
 
 export type ProductInfoProps = {
@@ -39,7 +44,27 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
     <>
       <div className={cn(s['product-info'], className)}>
         <div className={s['product-info__img']}>
-          <Image fill src={product.images[0].url} alt='product' />
+          {product.images.length > 1 ? (
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay]}
+              spaceBetween={0}
+              slidesPerView={1}
+              navigation={true}
+              pagination={{ clickable: true }}
+              loop={true}
+              className={s['product-info__swiper']}
+            >
+              {product.images.map((image, index) => (
+                <SwiperSlide key={image.id || index}>
+                  <div className={s['product-info__slide']}>
+                    <Image fill src={image.url} alt={`product ${index + 1}`} />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <Image fill src={product.images[0].url} alt='product' />
+          )}
         </div>
         <div className={s['product-info__content']}>
           <div className={s['product-info__text-box']}>

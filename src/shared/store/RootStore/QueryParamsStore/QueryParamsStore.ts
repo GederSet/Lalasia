@@ -4,6 +4,7 @@ import { Method } from '@shared/config/method'
 import { CategoryTypeApi } from '@shared/types/CategoryTypeApi'
 import { Option } from '@shared/types/OptionType'
 import { PaginationApi } from '@shared/types/PaginationApiType'
+import { ProductType } from '@shared/types/ProductType'
 import { QueryParamsTypes } from '@shared/types/QueryParamsTypes'
 import { SearchParams } from '@shared/types/SearchParamsType'
 import { normalizeSearchParams } from '@shared/utils/normalizeSearchParams'
@@ -18,6 +19,8 @@ type PrivateFields =
   | '_currentPage'
   | '_pageCount'
   | '_pageSize'
+  | '_priceRange'
+  | '_priceRangeGlobal'
 
 export interface IQueryParamsStore {
   params: Record<string, any>
@@ -26,12 +29,16 @@ export interface IQueryParamsStore {
   currentPage: number
   pageCount: number
   pageSize: number
+  priceRange: { min: number; max: number }
+  priceRangeGlobal: { min: number; max: number }
 
+  setPriceRangeGlobalPrivate(products: ProductType[]): void
   getParam(
     key: string
   ): string | qs.ParsedQs | (string | qs.ParsedQs)[] | undefined
   setSearch(value: string): void
   setCategory(categories: Option[]): void
+  setPriceRange(min: number, max: number): void
   setPagination(pagination?: PaginationApi): void
   setPage(page: number): void
   getCategories(): Promise<void>
@@ -47,6 +54,8 @@ export default class QueryParamsStore implements IQueryParamsStore {
   private _currentPage = 1
   private _pageCount = 1
   private _pageSize = 10
+  private _priceRange: { min: number; max: number } = { min: 0, max: 100 }
+  private _priceRangeGlobal: { min: number; max: number } = { min: 0, max: 100 }
 
   constructor() {
     makeObservable<this, PrivateFields>(this, {
@@ -57,6 +66,8 @@ export default class QueryParamsStore implements IQueryParamsStore {
       _currentPage: observable,
       _pageCount: observable,
       _pageSize: observable,
+      _priceRange: observable,
+      _priceRangeGlobal: observable,
 
       params: computed,
       categories: computed,
@@ -64,9 +75,13 @@ export default class QueryParamsStore implements IQueryParamsStore {
       currentPage: computed,
       pageCount: computed,
       pageSize: computed,
+      priceRange: computed,
+      priceRangeGlobal: computed,
 
+      setPriceRangeGlobalPrivate: action,
       setSearch: action,
       setCategory: action,
+      setPriceRange: action,
       setPagination: action,
       setPage: action,
       getCategories: action,
@@ -99,6 +114,14 @@ export default class QueryParamsStore implements IQueryParamsStore {
     return this._pageSize
   }
 
+  get priceRange() {
+    return this._priceRange
+  }
+
+  get priceRangeGlobal() {
+    return this._priceRangeGlobal
+  }
+
   getParam(
     key: string
   ): string | qs.ParsedQs | (string | qs.ParsedQs)[] | undefined {
@@ -122,6 +145,12 @@ export default class QueryParamsStore implements IQueryParamsStore {
             key: String(c.key),
             value: String(c.value),
           }))
+        : undefined,
+      priceRange: parsed.priceRange
+        ? {
+            min: Number((parsed.priceRange as any)?.min) || 0,
+            max: Number((parsed.priceRange as any)?.max) || 1000,
+          }
         : undefined,
     }
   }
@@ -184,6 +213,7 @@ export default class QueryParamsStore implements IQueryParamsStore {
     search?: string
     categories?: Option[]
     pagination?: PaginationApi
+    priceRange?: { min: number; max: number }
   }) {
     if (params?.search !== undefined) {
       this._params.search = params.search
@@ -193,7 +223,6 @@ export default class QueryParamsStore implements IQueryParamsStore {
     // }
 
     if (params?.categories !== undefined) {
-      console.log('setInitialParams categories', params.categories)
       this._categoryValue = params.categories
       this._params.categories = params.categories
     }
@@ -210,6 +239,11 @@ export default class QueryParamsStore implements IQueryParamsStore {
         pageSize: String(params.pagination.pageSize),
       }
     }
+
+    if (params?.priceRange !== undefined) {
+      this._priceRange = params.priceRange
+      this._params.priceRange = params.priceRange
+    }
   }
 
   setSearch(value: string) {
@@ -221,9 +255,25 @@ export default class QueryParamsStore implements IQueryParamsStore {
     this._categories = categories
   }
 
+  setPriceRangeGlobalPrivate(products: ProductType[]) {
+    const prices = products
+      .map((product) => product.price)
+      .filter((price) => price != null && price > 0)
+
+    this._priceRangeGlobal = {
+      min: Math.min(...prices),
+      max: Math.max(...prices),
+    }
+  }
+
   setCategory(categories: Option[]) {
     this._categoryValue = categories
     this._params.categories = categories
+    this.updateUrl()
+  }
+
+  setPriceRange(min: number, max: number) {
+    this._params.priceRange = { min, max }
     this.updateUrl()
   }
 
@@ -254,6 +304,7 @@ export default class QueryParamsStore implements IQueryParamsStore {
     runInAction(() => {
       this.setSearch('')
       this.setCategory([])
+      this.setPriceRange(this.priceRangeGlobal.min, this.priceRangeGlobal.max)
       this.setPagination()
     })
   }

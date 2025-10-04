@@ -17,14 +17,18 @@ export default async function ProductsPage({
 }) {
   const queryData = QueryParamsStore.getNormalizeQueryParams(await searchParams)
 
-  const [products, categories] = await Promise.all([
+  const [products, allProducts, categories] = await Promise.all([
     ProductsPageStore.getInitProducts(queryData),
+    ProductsPageStore.getInitAllProducts(),
     QueryParamsStore.getInitCategories(),
   ])
 
-  if (!products || !categories) {
+  if (!products || !categories || !allProducts) {
     throw new Error('Error')
   }
+
+  console.log('products', products)
+  console.log('allProducts', allProducts)
 
   const updatedQueryData = {
     ...queryData,
@@ -37,6 +41,7 @@ export default async function ProductsPage({
   return (
     <ProductsPageStoreContextProvider
       products={products}
+      allProducts={allProducts}
       categories={categories}
       queryData={updatedQueryData}
     >

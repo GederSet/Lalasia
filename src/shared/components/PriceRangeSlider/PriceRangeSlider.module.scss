@@ -1,0 +1,152 @@
+@use '@styles/vars' as *;
+@use '@styles/mixins' as mixins;
+
+.price-range-slider {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  &__values {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+  }
+
+  &__rows {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  &__input {
+    flex: 0 0 100px;
+    border: 1px solid black;
+    border-radius: 7px;
+    overflow: hidden;
+    font-size: 14px;
+    input {
+      padding: 7px;
+      text-align: center;
+    }
+  }
+
+  &__slider {
+    margin: 20px 0;
+    padding: 0 10px;
+  }
+
+  &__range {
+    // Стили для движущейся полосы
+    :global(.rc-slider-track) {
+      background: $brand !important;
+      height: 4px;
+    }
+
+    :global(.rc-slider-rail) {
+      background: #d6d6d6 !important;
+      height: 4px;
+    }
+
+    // Стили для ручек слайдера
+    :global(.rc-slider-handle) {
+      border: 2px solid $brand !important;
+      background: white !important;
+      width: 20px !important;
+      height: 20px !important;
+      margin-top: -8px !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      cursor: grab;
+      opacity: 1 !important;
+
+      &:hover {
+        border-color: darken($brand, 10%) !important;
+        background: white !important;
+        transform: scale(1.1);
+      }
+
+      &:active {
+        background: white !important;
+        transform: scale(0.95);
+      }
+
+      &:focus {
+        background: white !important;
+        box-shadow: 0 0 0 4px rgba($brand, 0.2);
+      }
+    }
+
+    :global(.rc-slider-handle-dragging) {
+      background: white !important;
+      box-shadow: 0 4px 12px rgba($brand, 0.3) !important;
+    }
+
+    :global(.rc-slider-handle-click-focused) {
+      background: white !important;
+      box-shadow: 0 0 0 4px rgba($brand, 0.2) !important;
+    }
+
+    // Отключенное состояние
+    :global(.rc-slider-disabled) {
+      .rc-slider-track {
+        background: #d6d6d6 !important;
+      }
+
+      .rc-slider-handle {
+        border-color: #d6d6d6 !important;
+        background: #d6d6d6 !important;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  &__labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  // Адаптивность
+  @include mixins.respond($media-query-768) {
+    padding: 16px;
+
+    &__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    &__values {
+      align-self: flex-end;
+    }
+
+    &__slider {
+      margin: 16px 0;
+    }
+
+    &__inputs {
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+
+  @include mixins.respond($media-query-425) {
+    padding: 12px;
+
+    &__header {
+      margin-bottom: 16px;
+    }
+
+    &__slider {
+      margin: 12px 0;
+      padding: 0 5px;
+    }
+
+    &__inputs {
+      margin-bottom: 16px;
+    }
+  }
+}
