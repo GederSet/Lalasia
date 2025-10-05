@@ -27,6 +27,12 @@ export type PriceRangeSliderProps = {
   step?: number
   /** Отключен ли слайдер */
   disabled?: boolean
+  /** Префикс для лейблов минимума/максимума (по умолчанию '$') */
+  labelPrefix?: string
+  /** Суффикс для лейблов минимума/максимума (по умолчанию '') */
+  labelSuffix?: string
+  /** Заголовок */
+  title?: string
 }
 
 const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
@@ -39,6 +45,9 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
   onChangeComplete,
   step = 1,
   disabled = false,
+  labelPrefix = '$',
+  labelSuffix = '',
+  title,
 }) => {
   const [internalValue, setInternalValue] = useState<[number, number]>(
     value || defaultValue
@@ -77,8 +86,8 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
 
   const handleMinInputChange = (inputValue: string) => {
     setMinInput(inputValue)
-
-    const numValue = parseInt(inputValue) || min
+    const parsed = parseInt(inputValue, 10)
+    const numValue = Number.isNaN(parsed) ? min : parsed
     const newRange: [number, number] = [
       Math.max(min, Math.min(max, numValue)),
       currentValue[1],
@@ -89,8 +98,8 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
 
   const handleMaxInputChange = (inputValue: string) => {
     setMaxInput(inputValue)
-
-    const numValue = parseInt(inputValue) || max
+    const parsed = parseInt(inputValue, 10)
+    const numValue = Number.isNaN(parsed) ? max : parsed
     const newRange: [number, number] = [
       currentValue[0],
       Math.max(min, Math.min(max, numValue)),
@@ -100,7 +109,8 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
   }
 
   const handleMinInputBlur = () => {
-    const numValue = parseInt(minInput) || min
+    const parsed = parseInt(minInput, 10)
+    const numValue = Number.isNaN(parsed) ? min : parsed
     const newRange: [number, number] = [
       Math.max(min, Math.min(max, numValue)),
       currentValue[1],
@@ -109,7 +119,8 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
   }
 
   const handleMaxInputBlur = () => {
-    const numValue = parseInt(maxInput) || max
+    const parsed = parseInt(maxInput, 10)
+    const numValue = Number.isNaN(parsed) ? max : parsed
     const newRange: [number, number] = [
       currentValue[0],
       Math.max(min, Math.min(max, numValue)),
@@ -119,6 +130,7 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
 
   return (
     <div className={cn(s['price-range-slider'], className)}>
+      <p className={s['price-range-slider__header']}>{title}</p>
       <div className={s['price-range-slider__rows']}>
         <Input
           type='number'
@@ -158,10 +170,10 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
 
       <div className={s['price-range-slider__labels']}>
         <Text tag='span' view='p-14' color='secondary'>
-          ${min}
+          {`${labelPrefix}${min}${labelSuffix}`}
         </Text>
         <Text tag='span' view='p-14' color='secondary'>
-          ${max}
+          {`${labelPrefix}${max}${labelSuffix}`}
         </Text>
       </div>
     </div>

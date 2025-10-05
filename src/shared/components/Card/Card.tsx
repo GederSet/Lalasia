@@ -10,6 +10,7 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import { Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import StarIcon from '../icons/StarIcon'
 import Popup from '../Popup'
 import Text from '../Text'
 import s from './Card.module.scss'
@@ -34,6 +35,7 @@ export type CardProps = {
   productId: string
   productNumberId: number
   discountPercent: number
+  rating: number
 }
 
 const Card: React.FC<CardProps> = ({
@@ -48,6 +50,7 @@ const Card: React.FC<CardProps> = ({
   contentSlot,
   onClick,
   actionSlot,
+  rating,
 }) => {
   const rootStore = useRootStore()
   const [isPopupOpen, setIsPopupOpen] = useState(false)
@@ -80,6 +83,12 @@ const Card: React.FC<CardProps> = ({
         onClick={onClick}
         className={cn(s.card, className)}
       >
+        {rating !== 0 && (
+          <div className={s.card__rating}>
+            <StarIcon />
+            <p className={s['card__rating-text']}>{rating}</p>
+          </div>
+        )}
         {discountPercent !== 0 && (
           <div className={s['card__discount-badge']}>-{discountPercent}%</div>
         )}

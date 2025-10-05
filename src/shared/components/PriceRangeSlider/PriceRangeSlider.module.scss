@@ -3,9 +3,6 @@
 
 .price-range-slider {
   &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 20px;
   }
 
@@ -109,27 +106,11 @@
     margin-top: 10px;
   }
 
-  // Адаптивность
   @include mixins.respond($media-query-768) {
     padding: 16px;
 
-    &__header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    &__values {
-      align-self: flex-end;
-    }
-
     &__slider {
       margin: 16px 0;
-    }
-
-    &__inputs {
-      flex-direction: column;
-      gap: 12px;
     }
   }
 
@@ -137,15 +118,6 @@
     padding: 12px;
 
     &__header {
-      margin-bottom: 16px;
-    }
-
-    &__slider {
-      margin: 12px 0;
-      padding: 0 5px;
-    }
-
-    &__inputs {
       margin-bottom: 16px;
     }
   }

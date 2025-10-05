@@ -1,0 +1,29 @@
+@use '@styles/vars' as *;
+
+.button-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  border: 1px solid var(--border);
+  background-color: var(--panel-bg);
+  color: var(--text);
+  transition: all 0.2s ease;
+
+  &_active {
+    background-color: $brand;
+    color: #fff;
+    border-color: $brand;
+  }
+
+  &_inactive {
+    background-color: var(--panel-bg);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  &_disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

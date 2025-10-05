@@ -81,27 +81,25 @@ const CartList: React.FC = () => {
   }
 
   const handleConfirmBuy = () => {
-    try {
-      const order = {
-        createdAt: new Date().toISOString(),
-        items: rootStore.cart.items.map((i) => ({
-          id: i.product.id,
-          title: i.product.title,
-          price: i.product.price,
-          discountPercent: i.product.discountPercent,
-          quantity: i.quantity,
-        })),
-        totals: {
-          count: rootStore.cart.totalCount,
-          fullPrice: rootStore.cart.totalPrice,
-          discount: discountTarget,
-          total: targetTotal,
-        },
-      }
+    const KEY = 'orderHistory'
 
-      const KEY = 'orderHistory'
-      const prev = JSON.parse(localStorage.getItem(KEY) || '[]')
-      const next = Array.isArray(prev) ? [...prev, order] : [order]
+    try {
+      const raw = localStorage.getItem(KEY)
+      const prev = Array.isArray(JSON.parse(raw || '[]'))
+        ? JSON.parse(raw || '[]')
+        : []
+
+      const newProducts = rootStore.cart.items.map((i) => ({
+        id: i.product.id,
+        title: i.product.title,
+        price: i.product.price,
+        discountPercent: i.product.discountPercent,
+        quantity: i.quantity,
+        images: i.product.images,
+      }))
+
+      const next = [...newProducts, ...prev]
+
       localStorage.setItem(KEY, JSON.stringify(next))
     } catch (e) {
       console.error('Failed to write order to localStorage', e)

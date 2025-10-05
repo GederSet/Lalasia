@@ -31,4 +31,8 @@ export const routes = {
     mask: '/register',
     create: () => '/register',
   },
+  history: {
+    mask: '/history',
+    create: () => '/history',
+  },
 }

@@ -44,6 +44,9 @@ export default class ProductsPageStore implements IProductsPageStore {
   private _qpCategory?: () => void
   private _qpPagination?: () => void
   private _qpPriceRage?: () => void
+  private _qpDiscountRange?: () => void
+  private _qpRatingRange?: () => void
+  private _qpInStock?: () => void
 
   constructor(
     products: ProductType[],
@@ -97,6 +100,30 @@ export default class ProductsPageStore implements IProductsPageStore {
         this.loadProducts()
       }
     )
+
+    this._qpDiscountRange = reaction(
+      () => this.query.getParam('discountRange'),
+      () => {
+        this.query.setPage(1)
+        this.loadProducts()
+      }
+    )
+
+    this._qpRatingRange = reaction(
+      () => this.query.getParam('ratingRange'),
+      () => {
+        this.query.setPage(1)
+        this.loadProducts()
+      }
+    )
+
+    this._qpInStock = reaction(
+      () => this.query.getParam('isInStock'),
+      () => {
+        this.query.setPage(1)
+        this.loadProducts()
+      }
+    )
   }
 
   get products() {
@@ -139,6 +166,8 @@ export default class ProductsPageStore implements IProductsPageStore {
       const search = query.search
       const categories = query.categories as { key: string }[] | undefined
       const priceRange = query.priceRange
+      const discountRange = query.discountRange
+      const ratingRange = query.ratingRange
 
       const pagination = {
         page: query.pagination.page,
@@ -156,6 +185,18 @@ export default class ProductsPageStore implements IProductsPageStore {
           price: {
             $gte: priceRange.min,
             $lte: priceRange.max,
+          },
+        }),
+        ...(discountRange && {
+          discountPercent: {
+            $gte: discountRange.min,
+            $lte: discountRange.max,
+          },
+        }),
+        ...(ratingRange && {
+          rating: {
+            $gte: ratingRange.min,
+            $lte: ratingRange.max,
           },
         }),
       }
@@ -230,6 +271,13 @@ export default class ProductsPageStore implements IProductsPageStore {
       const priceRange = this.query.getParam('priceRange') as
         | { min: number; max: number }
         | undefined
+      const discountRange = this.query.getParam('discountRange') as
+        | { min: number; max: number }
+        | undefined
+      const ratingRange = this.query.getParam('ratingRange') as
+        | { min: number; max: number }
+        | undefined
+      const isInStock = this.query.getParam('isInStock') as string | undefined
 
       const pagination = {
         page: this.query.currentPage,
@@ -249,6 +297,19 @@ export default class ProductsPageStore implements IProductsPageStore {
             $lte: priceRange.max,
           },
         }),
+        ...(discountRange && {
+          discountPercent: {
+            $gte: discountRange.min,
+            $lte: discountRange.max,
+          },
+        }),
+        ...(ratingRange && {
+          rating: {
+            $gte: ratingRange.min,
+            $lte: ratingRange.max,
+          },
+        }),
+        ...(isInStock === 'true' && { isInStock: true }),
       }
 
       const queryStr = qs.stringify(
@@ -346,5 +407,8 @@ export default class ProductsPageStore implements IProductsPageStore {
     this._qpCategory?.()
     this._qpPagination?.()
     this._qpPriceRage?.()
+    this._qpDiscountRange?.()
+    this._qpRatingRange?.()
+    this._qpInStock?.()
   }
 }

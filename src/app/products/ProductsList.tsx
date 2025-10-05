@@ -5,6 +5,7 @@ import Button from '@components/Button'
 import Card from '@components/Card'
 import ProductSkeleton from '@components/ProductSkeleton'
 import Text from '@components/Text'
+import ButtonCheckbox from '@shared/components/ButtonCheckbox'
 import LoupeIcon from '@shared/components/icons/LoupeIcon'
 import InfiniteScroll from '@shared/components/InfiniteScroll'
 import Input from '@shared/components/Input'
@@ -15,6 +16,7 @@ import PriceRangeSlider from '@shared/components/PriceRangeSlider'
 import { Meta } from '@shared/config/meta'
 import { useDeviceType } from '@shared/hooks/useDeviceType'
 import { useRootStore } from '@shared/store/RootStore'
+import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
 import { useCallback, useEffect } from 'react'
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -42,11 +44,31 @@ const ProductsList = () => {
     rootStore.query.setSearch(value)
   }
 
+  // может быть пригодится
   const handlePriceRangeChange = (value: [number, number]) => {}
 
   const handlePriceRangeChangeComplete = (value: [number, number]) => {
     rootStore.query.setPriceRange(value[0], value[1])
   }
+
+  // может быть пригодится
+  const handleDiscountRangeChange = (value: [number, number]) => {}
+
+  const handleDiscountRangeChangeComplete = (value: [number, number]) => {
+    rootStore.query.setDiscountRange(value[0], value[1])
+  }
+
+  const handleRatingRangeChange = (value: [number, number]) => {}
+  const handleRatingRangeChangeComplete = (value: [number, number]) => {
+    rootStore.query.setRatingRange(value[0], value[1])
+  }
+
+  const handleToggleInStock = useCallback(
+    (checked: boolean) => {
+      rootStore.query.setInStock(checked)
+    },
+    [rootStore.query]
+  )
 
   const handleFindProducts = useCallback(() => {
     productsStore.setFindProducts()
@@ -118,34 +140,90 @@ const ProductsList = () => {
             </Button>
           </div>
 
-          <MultiDropdown
-            className={s['products__multi-dropdown']}
-            options={categories}
-            value={categoryValue}
-            onChange={(newCategories: Option[]) =>
-              rootStore.query.setCategory(newCategories)
-            }
-            getTitle={(categoryValue: Option[]) =>
-              categoryValue.length === 0
-                ? 'Filter'
-                : categoryValue.map(({ value }) => value).join(', ')
-            }
-          />
+          <div
+            className={cn(
+              s['products__filter-rows'],
+              s['products__filter-rows_gap']
+            )}
+          >
+            <PriceRangeSlider
+              className={s['products__price-range-slider']}
+              title='Price'
+              min={rootStore.query.priceRangeGlobal?.min}
+              max={rootStore.query.priceRangeGlobal?.max}
+              value={[
+                (rootStore.query.getParam('priceRange') as any)?.min ||
+                  rootStore.query.priceRange?.min,
+                (rootStore.query.getParam('priceRange') as any)?.max ||
+                  rootStore.query.priceRange?.max,
+              ]}
+              onChange={handlePriceRangeChange}
+              onChangeComplete={handlePriceRangeChangeComplete}
+              step={1}
+            />
 
-          <PriceRangeSlider
-            className={s['products__price-range-slider']}
-            min={rootStore.query.priceRangeGlobal?.min}
-            max={rootStore.query.priceRangeGlobal?.max}
-            value={[
-              (rootStore.query.getParam('priceRange') as any)?.min ||
-                rootStore.query.priceRange?.min,
-              (rootStore.query.getParam('priceRange') as any)?.max ||
-                rootStore.query.priceRange?.max,
-            ]}
-            onChange={handlePriceRangeChange}
-            onChangeComplete={handlePriceRangeChangeComplete}
-            step={1}
-          />
+            <PriceRangeSlider
+              className={s['products__price-range-slider']}
+              title='Discount'
+              min={rootStore.query.discountRangeGlobal?.min}
+              max={rootStore.query.discountRangeGlobal?.max}
+              value={[
+                (rootStore.query.getParam('discountRange') as any)?.min ||
+                  rootStore.query.discountRange?.min,
+                (rootStore.query.getParam('discountRange') as any)?.max ||
+                  rootStore.query.discountRange?.max,
+              ]}
+              onChange={handleDiscountRangeChange}
+              onChangeComplete={handleDiscountRangeChangeComplete}
+              step={1}
+              labelPrefix={''}
+              labelSuffix={'%'}
+            />
+
+            <PriceRangeSlider
+              className={s['products__price-range-slider']}
+              title='Rating'
+              min={rootStore.query.ratingRangeGlobal?.min}
+              max={rootStore.query.ratingRangeGlobal?.max}
+              value={[
+                (rootStore.query.getParam('ratingRange') as any)?.min ||
+                  rootStore.query.ratingRange?.min,
+                (rootStore.query.getParam('ratingRange') as any)?.max ||
+                  rootStore.query.ratingRange?.max,
+              ]}
+              onChange={handleRatingRangeChange}
+              onChangeComplete={handleRatingRangeChangeComplete}
+              step={1}
+              labelPrefix={''}
+            />
+          </div>
+
+          <div className={s['products__filter-rows']}>
+            <MultiDropdown
+              className={cn(
+                s['products__multi-dropdown'],
+                s['products__multi-dropdown_category']
+              )}
+              options={categories}
+              value={categoryValue}
+              onChange={(newCategories: Option[]) =>
+                rootStore.query.setCategory(newCategories)
+              }
+              getTitle={(categoryValue: Option[]) =>
+                categoryValue.length === 0
+                  ? 'Filter'
+                  : categoryValue.map(({ value }) => value).join(', ')
+              }
+            />
+            <ButtonCheckbox
+              className={s['products__button-checkbox']}
+              text='In stock'
+              checked={
+                (rootStore.query.getParam('isInStock') as string) === 'true'
+              }
+              onChange={handleToggleInStock}
+            />
+          </div>
         </div>
 
         <div className={s.products__wrapper}>
@@ -198,6 +276,7 @@ const ProductsList = () => {
                         discountPercent={product.discountPercent}
                         captionSlot={product.productCategory.title}
                         title={product.title}
+                        rating={product.rating}
                         subtitle={product.description}
                         contentSlot={`${product.price}`}
                         actionSlot={<Button>Add to Cart</Button>}
@@ -227,6 +306,7 @@ const ProductsList = () => {
                       discountPercent={product.discountPercent}
                       captionSlot={product.productCategory.title}
                       title={product.title}
+                      rating={product.rating}
                       subtitle={product.description}
                       contentSlot={`${product.price}`}
                       actionSlot={<Button>Add to Cart</Button>}

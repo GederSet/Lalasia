@@ -21,6 +21,10 @@ type PrivateFields =
   | '_pageSize'
   | '_priceRange'
   | '_priceRangeGlobal'
+  | '_discountRange'
+  | '_discountRangeGlobal'
+  | '_ratingRange'
+  | '_ratingRangeGlobal'
 
 export interface IQueryParamsStore {
   params: Record<string, any>
@@ -31,6 +35,11 @@ export interface IQueryParamsStore {
   pageSize: number
   priceRange: { min: number; max: number }
   priceRangeGlobal: { min: number; max: number }
+  discountRange: { min: number; max: number }
+  discountRangeGlobal: { min: number; max: number }
+  ratingRange: { min: number; max: number }
+  ratingRangeGlobal: { min: number; max: number }
+  isInStock: boolean
 
   setPriceRangeGlobalPrivate(products: ProductType[]): void
   getParam(
@@ -39,6 +48,9 @@ export interface IQueryParamsStore {
   setSearch(value: string): void
   setCategory(categories: Option[]): void
   setPriceRange(min: number, max: number): void
+  setDiscountRange(min: number, max: number): void
+  setRatingRange(min: number, max: number): void
+  setInStock(value: boolean): void
   setPagination(pagination?: PaginationApi): void
   setPage(page: number): void
   getCategories(): Promise<void>
@@ -56,6 +68,14 @@ export default class QueryParamsStore implements IQueryParamsStore {
   private _pageSize = 10
   private _priceRange: { min: number; max: number } = { min: 10, max: 97 }
   private _priceRangeGlobal: { min: number; max: number } = { min: 10, max: 97 }
+  private _discountRange: { min: number; max: number } = { min: 0, max: 100 }
+  private _discountRangeGlobal: { min: number; max: number } = {
+    min: 0,
+    max: 100,
+  }
+  private _ratingRange: { min: number; max: number } = { min: 0, max: 5 }
+  private _ratingRangeGlobal: { min: number; max: number } = { min: 0, max: 5 }
+  private _isInStock: boolean = false
 
   constructor() {
     makeObservable<this, PrivateFields>(this, {
@@ -68,6 +88,10 @@ export default class QueryParamsStore implements IQueryParamsStore {
       _pageSize: observable,
       _priceRange: observable,
       _priceRangeGlobal: observable,
+      _discountRange: observable,
+      _discountRangeGlobal: observable,
+      _ratingRange: observable,
+      _ratingRangeGlobal: observable,
 
       params: computed,
       categories: computed,
@@ -77,11 +101,17 @@ export default class QueryParamsStore implements IQueryParamsStore {
       pageSize: computed,
       priceRange: computed,
       priceRangeGlobal: computed,
+      discountRange: computed,
+      discountRangeGlobal: computed,
+      ratingRange: computed,
+      ratingRangeGlobal: computed,
+      isInStock: computed,
 
       setPriceRangeGlobalPrivate: action,
       setSearch: action,
       setCategory: action,
       setPriceRange: action,
+      setDiscountRange: action,
       setPagination: action,
       setPage: action,
       getCategories: action,
@@ -122,6 +152,26 @@ export default class QueryParamsStore implements IQueryParamsStore {
     return this._priceRangeGlobal
   }
 
+  get discountRange() {
+    return this._discountRange
+  }
+
+  get discountRangeGlobal() {
+    return this._discountRangeGlobal
+  }
+
+  get ratingRange() {
+    return this._ratingRange
+  }
+
+  get ratingRangeGlobal() {
+    return this._ratingRangeGlobal
+  }
+
+  get isInStock() {
+    return this._isInStock
+  }
+
   getParam(
     key: string
   ): string | qs.ParsedQs | (string | qs.ParsedQs)[] | undefined {
@@ -152,6 +202,22 @@ export default class QueryParamsStore implements IQueryParamsStore {
             max: Number((parsed.priceRange as any)?.max) || 1000,
           }
         : undefined,
+      discountRange: parsed.discountRange
+        ? {
+            min: Number((parsed.discountRange as any)?.min) || 0,
+            max: Number((parsed.discountRange as any)?.max) || 100,
+          }
+        : undefined,
+      ratingRange: parsed.ratingRange
+        ? {
+            min: Number((parsed.ratingRange as any)?.min) || 0,
+            max: Number((parsed.ratingRange as any)?.max) || 5,
+          }
+        : undefined,
+      isInStock:
+        typeof parsed.isInStock === 'string'
+          ? (parsed.isInStock as string) === 'true'
+          : undefined,
     }
   }
 
@@ -214,6 +280,9 @@ export default class QueryParamsStore implements IQueryParamsStore {
     categories?: Option[]
     pagination?: PaginationApi
     priceRange?: { min: number; max: number }
+    discountRange?: { min: number; max: number }
+    ratingRange?: { min: number; max: number }
+    isInStock?: boolean
   }) {
     if (params?.search !== undefined) {
       this._params.search = params.search
@@ -243,6 +312,21 @@ export default class QueryParamsStore implements IQueryParamsStore {
     if (params?.priceRange !== undefined) {
       this._priceRange = params.priceRange
       this._params.priceRange = params.priceRange
+    }
+
+    if (params?.discountRange !== undefined) {
+      this._discountRange = params.discountRange
+      this._params.discountRange = params.discountRange
+    }
+
+    if (params?.ratingRange !== undefined) {
+      this._ratingRange = params.ratingRange
+      this._params.ratingRange = params.ratingRange
+    }
+
+    if (params?.isInStock !== undefined) {
+      this._isInStock = params.isInStock
+      this._params.isInStock = String(params.isInStock)
     }
   }
 
@@ -277,6 +361,22 @@ export default class QueryParamsStore implements IQueryParamsStore {
     this.updateUrl()
   }
 
+  setDiscountRange(min: number, max: number) {
+    this._params.discountRange = { min, max }
+    this.updateUrl()
+  }
+
+  setRatingRange(min: number, max: number) {
+    this._params.ratingRange = { min, max }
+    this.updateUrl()
+  }
+
+  setInStock(value: boolean) {
+    this._isInStock = value
+    this._params.isInStock = String(value)
+    this.updateUrl()
+  }
+
   setPagination(pagination?: PaginationApi) {
     if (!pagination) {
       this._currentPage = 1
@@ -305,6 +405,14 @@ export default class QueryParamsStore implements IQueryParamsStore {
       this.setSearch('')
       this.setCategory([])
       this.setPriceRange(this.priceRangeGlobal.min, this.priceRangeGlobal.max)
+      this.setDiscountRange(
+        this.discountRangeGlobal.min,
+        this.discountRangeGlobal.max
+      )
+      this.setRatingRange(
+        this._ratingRangeGlobal.min,
+        this._ratingRangeGlobal.max
+      )
       this.setPagination()
     })
   }

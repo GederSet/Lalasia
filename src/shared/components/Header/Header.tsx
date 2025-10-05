@@ -23,6 +23,7 @@ const menuItems = [
   { label: 'Products', to: routes.main.mask },
   { label: 'Categories', to: routes.categories.mask },
   { label: 'About us', to: routes.aboutUs.mask },
+  { label: 'History', to: routes.history.mask },
 ]
 
 const Header: React.FC = () => {

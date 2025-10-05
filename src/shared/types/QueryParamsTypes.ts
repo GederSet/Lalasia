@@ -6,4 +6,7 @@ export type QueryParamsTypes = {
   search?: string | undefined
   categories?: Option[] | undefined
   priceRange?: { min: number; max: number } | undefined
+  discountRange?: { min: number; max: number } | undefined
+  ratingRange?: { min: number; max: number } | undefined
+  isInStock?: boolean | undefined
 }

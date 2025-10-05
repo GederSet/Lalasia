@@ -123,6 +123,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
               images={product.images}
               captionSlot={product.productCategory.title}
               title={product.title}
+              rating={product.rating}
               subtitle={product.description}
               contentSlot={`${product.price}`}
               actionSlot={<Button>Add to Cart</Button>}
