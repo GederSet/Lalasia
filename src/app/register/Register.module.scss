@@ -17,10 +17,10 @@
     display: flex;
     flex-direction: column;
     border-radius: 6px;
-    border: 1px solid #c9c9c9;
+    border: 1px solid var(--auth-border);
     gap: 20px;
     padding: 40px;
-    background-color: white;
+    background-color: var(--panel-bg);
     @include mixins.respond($media-query-425) {
       padding: 40px 25px;
     }
@@ -42,12 +42,61 @@
 
   // .registration__input
   &__input {
+    :global(.MuiOutlinedInput-root) {
+      color: var(--text);
+      background-color: var(--panel-bg);
+      .MuiOutlinedInput-notchedOutline {
+        border-color: var(--auth-border);
+      }
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: var(--auth-border);
+      }
+    }
+
+    :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+      border-color: var(--auth-border);
+    }
+    :global(
+        .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline
+      ) {
+      border-color: $brand;
+    }
+    :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
+      border-color: $brand;
+    }
+
+    :global(.MuiInputBase-input) {
+      color: var(--text);
+    }
+
     :global(.MuiOutlinedInput-root.Mui-focused) fieldset {
       border-color: $brand;
     }
 
     :global(.MuiInputLabel-root.Mui-focused) {
       color: $brand;
+    }
+
+    :global(.MuiInputLabel-root) {
+      color: var(--text);
+    }
+
+    :global(.MuiFormHelperText-root) {
+      color: $text-secondary;
+    }
+
+    :global(input:-webkit-autofill),
+    :global(input:-webkit-autofill:hover),
+    :global(input:-webkit-autofill:focus) {
+      -webkit-text-fill-color: var(--text);
+      box-shadow: 0 0 0px 1000px var(--panel-bg) inset;
+      transition: background-color 99999s ease 0s;
+      caret-color: var(--text);
+    }
+    :global(input:-moz-autofill) {
+      box-shadow: 0 0 0px 1000px var(--panel-bg) inset;
+      -moz-text-fill-color: var(--text);
+      caret-color: var(--text);
     }
   }
 
