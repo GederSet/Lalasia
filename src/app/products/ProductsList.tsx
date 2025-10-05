@@ -195,6 +195,7 @@ const ProductsList = () => {
                         productId={product.documentId}
                         className={s.products__card}
                         images={product.images}
+                        discountPercent={product.discountPercent}
                         captionSlot={product.productCategory.title}
                         title={product.title}
                         subtitle={product.description}
@@ -223,6 +224,7 @@ const ProductsList = () => {
                       productId={product.documentId}
                       className={s.products__card}
                       images={product.images}
+                      discountPercent={product.discountPercent}
                       captionSlot={product.productCategory.title}
                       title={product.title}
                       subtitle={product.description}

@@ -35,6 +35,8 @@ export default async function ProductsPage({
     },
   }
 
+  console.log('products', products)
+
   return (
     <ProductsPageStoreContextProvider
       products={products}

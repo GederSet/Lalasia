@@ -1,12 +1,15 @@
 import Text from '@components/Text'
 import BasketDeleteIcon from '@components/icons/BasketDeleteIcon'
+import { useAnimatedNumber } from '@shared/hooks/useConfigureNumbers'
 import { useRootStore } from '@shared/store/RootStore'
+import cn from 'classnames'
 import Image from 'next/image'
 import s from './CartProduct.module.scss'
 
 type CartProductProps = {
   productId: number
   price: number
+  discountPercent: number
   name: string
   description: string
   count: number
@@ -20,6 +23,7 @@ const MIN_COUNT = 1
 const CartProduct: React.FC<CartProductProps> = ({
   productId,
   price,
+  discountPercent,
   name,
   description,
   count,
@@ -27,6 +31,14 @@ const CartProduct: React.FC<CartProductProps> = ({
   onDelete,
 }) => {
   const rootStore = useRootStore()
+
+  const totalPrice = Math.round(price * count)
+  const totalDiscounted = Math.round(
+    price * (1 - discountPercent / 100) * count
+  )
+
+  const animatedTotal = useAnimatedNumber(totalPrice, 250)
+  const animatedDiscounted = useAnimatedNumber(totalDiscounted, 250)
 
   const handleDecrease = () => {
     if (count > MIN_COUNT) {
@@ -47,7 +59,20 @@ const CartProduct: React.FC<CartProductProps> = ({
           <Image fill src={images[0]?.url} alt='product' />
         </div>
         <div className={s['basket-product__shell']}>
-          <p className={s['basket-product__price']}>${price}</p>
+          <div className={s['basket-product__prices']}>
+            {discountPercent !== 0 && (
+              <p className={s['basket-product__discount']}>
+                ${animatedDiscounted}
+              </p>
+            )}
+            <p
+              className={cn(s['basket-product__price'], {
+                [s['basket-product__price_discount']]: discountPercent !== 0,
+              })}
+            >
+              ${animatedTotal}
+            </p>
+          </div>
           <Text maxLines={1} className={s['basket-product__name']}>
             {name}
           </Text>

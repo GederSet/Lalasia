@@ -2,6 +2,7 @@
 @use '@styles/mixins' as mixins;
 
 .card {
+  position: relative;
   background-color: white;
   transition: box-shadow 0.3s;
   display: flex;
@@ -10,6 +11,19 @@
   &:hover {
     box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.25);
   }
+
+  &__discount-badge {
+    position: absolute;
+    z-index: 2;
+    top: 14px;
+    right: 10px;
+    color: white;
+    background-color: rgb(239 40 40);
+    padding: 7px 7px;
+    border-radius: 5px;
+    font-size: 12px;
+  }
+
   &__img {
     position: relative;
     aspect-ratio: 1;
@@ -101,8 +115,27 @@
     line-height: 1.2;
   }
 
-  &__price {
+  &__prices {
+    display: flex;
+    flex-direction: column;
     flex: 1 1 auto;
     line-height: 22px;
+  }
+
+  &__discount {
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  &__price {
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+    &_discount {
+      font-size: 14px;
+      color: $text-secondary;
+      text-decoration: line-through;
+    }
   }
 }

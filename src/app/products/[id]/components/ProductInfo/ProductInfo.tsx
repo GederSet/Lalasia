@@ -3,6 +3,7 @@ import Text from '@components/Text'
 import Popup from '@shared/components/Popup'
 import { useRootStore } from '@shared/store/RootStore'
 import { ProductType } from '@shared/types/ProductType'
+import { getDiscount } from '@shared/utils/getDiscount'
 import cn from 'classnames'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
@@ -21,6 +22,12 @@ export type ProductInfoProps = {
 const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
   const rootStore = useRootStore()
   const [isPopupOpen, setIsPopupOpen] = useState(false)
+  const [isBuyPopupOpen, setIsBuyPopupOpen] = useState(false)
+  const discountPercent = product.discountPercent ?? 0
+  const hasDiscount = discountPercent > 0
+  const discountedPrice = hasDiscount
+    ? getDiscount(product.price, discountPercent)
+    : product.price
 
   const handleAddProductToBasket = useCallback(() => {
     if (!rootStore.auth.isAuthenticated) {
@@ -37,7 +44,10 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
       images: product.images,
     }
 
-    rootStore.cart.addToCart(productInfo)
+    rootStore.cart.addToCart({
+      ...productInfo,
+      discountPercent: product.discountPercent ?? 0,
+    })
   }, [product, rootStore])
 
   return (
@@ -86,16 +96,27 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
             </Text>
           </div>
           <div className={s['product-info__price-box']}>
-            <Text
-              tag='p'
-              view='p-44'
-              weight='bold'
-              className={s['product-info__price']}
-            >
-              {`$${product.price}`}
-            </Text>
+            <div className={s['product-info__prices']}>
+              {hasDiscount && (
+                <p className={s['product-info__price']}>
+                  {`$${discountedPrice}`}
+                </p>
+              )}
+              <p
+                className={cn(s['product-info__price'], {
+                  [s['product-info__price_discount']]: hasDiscount,
+                })}
+              >
+                {`$${product.price}`}
+              </p>
+            </div>
             <div className={s['product-info__buttons']}>
-              <Button className={s['product-info_button']}>Buy Now</Button>
+              <Button
+                className={s['product-info_button']}
+                onClick={() => setIsBuyPopupOpen(true)}
+              >
+                Buy Now
+              </Button>
               <Button
                 onClick={handleAddProductToBasket}
                 className={s['product-info_button']}
@@ -113,6 +134,42 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
         description='You are not logged in'
         type='alert'
         onConfirm={() => setIsPopupOpen(false)}
+      />
+      <Popup
+        isOpen={isBuyPopupOpen}
+        title='Confirm Purchase'
+        description='Do you want to buy this product now?'
+        type='confirm'
+        onConfirm={() => {
+          try {
+            const order = {
+              createdAt: new Date().toISOString(),
+              items: [
+                {
+                  id: product.id,
+                  title: product.title,
+                  price: product.price,
+                  discountPercent: discountPercent,
+                  quantity: 1,
+                },
+              ],
+              totals: {
+                count: 1,
+                fullPrice: product.price,
+                discount: hasDiscount ? product.price - discountedPrice : 0,
+                total: discountedPrice,
+              },
+            }
+            const KEY = 'orderHistory'
+            const prev = JSON.parse(localStorage.getItem(KEY) || '[]')
+            const next = Array.isArray(prev) ? [...prev, order] : [order]
+            localStorage.setItem(KEY, JSON.stringify(next))
+          } catch (e) {
+            console.error('Failed to write order to localStorage', e)
+          }
+          setIsBuyPopupOpen(false)
+        }}
+        onCancel={() => setIsBuyPopupOpen(false)}
       />
     </>
   )

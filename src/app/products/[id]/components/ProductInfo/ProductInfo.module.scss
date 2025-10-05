@@ -108,10 +108,22 @@
     gap: 48px;
   }
 
+  &__prices {
+    display: flex;
+    gap: 10px;
+  }
+
   // .product-info__price
 
   &__price {
-    line-height: 48px;
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 44px;
+    &_discount {
+      color: $text-secondary;
+      text-decoration: line-through;
+      font-size: 30px;
+    }
   }
 
   // .product-info__buttons
@@ -129,6 +141,11 @@
     &__name,
     &__price {
       font-size: 34px;
+    }
+    &__price {
+      &_discount {
+        font-size: 24px;
+      }
     }
     &__content {
       gap: 40px;

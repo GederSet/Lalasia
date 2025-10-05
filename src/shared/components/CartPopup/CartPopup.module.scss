@@ -1,7 +1,7 @@
 @use '@styles/vars' as *;
 @use '@styles/mixins' as mixins;
 
-.popup {
+.cart-popup {
   position: fixed;
   top: 0;
   left: 0;
@@ -33,7 +33,21 @@
       width: 100%;
       height: 100%;
       border-radius: 0;
-      justify-content: center;
+    }
+  }
+
+  &__rows {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    &_total {
+      font-weight: 500;
+      font-size: 25px;
+      @include mixins.respond($media-query-425) {
+        flex: 1 1 auto;
+        align-items: flex-end;
+      }
     }
   }
 
@@ -48,9 +62,9 @@
     max-width: 700px;
     font-size: 20px;
     line-height: 1.3;
-    @include mixins.respond($media-query-425) {
-      flex: 0 0 auto;
-    }
+  }
+
+  &__number {
   }
 
   &__buttons {
@@ -61,7 +75,7 @@
       flex-direction: column;
       width: 100%;
     }
-    .popup__button {
+    .cart-popup__button {
       border-radius: 7px;
       padding: 10px 20px;
       font-size: 16px;
@@ -73,7 +87,7 @@
     visibility: visible;
   }
 
-  &._open .popup__body {
+  &._open .cart-popup__body {
     transform: scale(1);
   }
 }

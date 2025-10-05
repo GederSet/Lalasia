@@ -1,9 +1,11 @@
 'use client'
 
 import Button from '@components/Button'
+import CartPopup from '@shared/components/CartPopup'
 import Loader from '@shared/components/Loader'
 import Popup from '@shared/components/Popup'
 import { Meta } from '@shared/config/meta'
+import { useAnimatedNumber } from '@shared/hooks/useConfigureNumbers'
 import { useRootStore } from '@store/RootStore'
 import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
@@ -17,7 +19,24 @@ import NullCart from './components/NullCart'
 const CartList: React.FC = () => {
   const rootStore = useRootStore()
   const [isPopupOpen, setIsPopupOpen] = useState(false)
+  const [isCartPopupOpen, setIsCartPopupOpen] = useState(false)
   const [productToDelete, setProductToDelete] = useState<number | null>(null)
+
+  const hasDiscount =
+    rootStore.cart.totalDiscountPrice !== rootStore.cart.totalPrice
+
+  const targetTotal = hasDiscount
+    ? rootStore.cart.totalDiscountPrice
+    : rootStore.cart.totalPrice
+
+  const animatedTotal = useAnimatedNumber(targetTotal, 250)
+
+  const discountTarget = hasDiscount
+    ? rootStore.cart.totalPrice - rootStore.cart.totalDiscountPrice
+    : 0
+  const animatedDiscount = useAnimatedNumber(discountTarget, 250)
+
+  const animatedFullPrice = useAnimatedNumber(rootStore.cart.totalPrice, 250)
 
   if (rootStore.cart.meta === Meta.loading) {
     return <CartSkeletonPage />
@@ -49,6 +68,7 @@ const CartList: React.FC = () => {
         productId={item.product.id}
         name={item.product.title}
         price={item.product.price}
+        discountPercent={item.product.discountPercent}
         count={item.quantity}
         description={item.product.description || ''}
         images={item.product.images}
@@ -57,11 +77,47 @@ const CartList: React.FC = () => {
     ))
 
   const handleBuy = () => {
-    alert('Пока не готово)')
+    setIsCartPopupOpen(true)
+  }
+
+  const handleConfirmBuy = () => {
+    try {
+      const order = {
+        createdAt: new Date().toISOString(),
+        items: rootStore.cart.items.map((i) => ({
+          id: i.product.id,
+          title: i.product.title,
+          price: i.product.price,
+          discountPercent: i.product.discountPercent,
+          quantity: i.quantity,
+        })),
+        totals: {
+          count: rootStore.cart.totalCount,
+          fullPrice: rootStore.cart.totalPrice,
+          discount: discountTarget,
+          total: targetTotal,
+        },
+      }
+
+      const KEY = 'orderHistory'
+      const prev = JSON.parse(localStorage.getItem(KEY) || '[]')
+      const next = Array.isArray(prev) ? [...prev, order] : [order]
+      localStorage.setItem(KEY, JSON.stringify(next))
+    } catch (e) {
+      console.error('Failed to write order to localStorage', e)
+    }
+
+    rootStore.cart.deleteAllFromCart()
+    setIsCartPopupOpen(false)
   }
 
   return (
-    <div className={s['basket']}>
+    <div
+      className={cn(s['basket'], {
+        [s['basket_discount']]:
+          rootStore.cart.totalDiscountPrice !== rootStore.cart.totalPrice,
+      })}
+    >
       <div className={s['basket__container']}>
         {rootStore.cart.meta === Meta.error ? (
           <CartError text='Error loading the shopping cart' />
@@ -86,10 +142,27 @@ const CartList: React.FC = () => {
                     {rootStore.cart.totalCount}
                   </div>
                 </div>
+                {hasDiscount && (
+                  <>
+                    <div className={s['basket__rows']}>
+                      <div className={s['basket__rows-text']}>Full price:</div>
+                      <div className={s['basket__rows-price']}>
+                        ${animatedFullPrice}
+                      </div>
+                    </div>
+                    <div className={s['basket__rows']}>
+                      <div className={s['basket__rows-text']}>My discount:</div>
+                      <div className={s['basket__rows-price']}>
+                        -$
+                        {animatedDiscount}
+                      </div>
+                    </div>
+                  </>
+                )}
                 <div className={s['basket__finals']}>
                   <div className={s['basket__total-text']}>Total price</div>
                   <div className={s['basket__total-price']}>
-                    ${rootStore.cart.totalPrice}
+                    <span>${animatedTotal}</span>
                   </div>
                 </div>
                 <Button onClick={handleBuy} className={s['basket__button']}>
@@ -111,6 +184,15 @@ const CartList: React.FC = () => {
       {rootStore.cart.metaMini === Meta.loading && (
         <Loader size='m' className={s['basket__mini-loader']} />
       )}
+      <CartPopup
+        isOpen={isCartPopupOpen}
+        totalProducts={rootStore.cart.totalCount}
+        fullPrice={rootStore.cart.totalPrice}
+        discountedPrice={discountTarget}
+        totalPrice={targetTotal}
+        onConfirm={handleConfirmBuy}
+        onCancel={() => setIsCartPopupOpen(false)}
+      />
     </div>
   )
 }

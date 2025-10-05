@@ -27,6 +27,14 @@ const CartSkeletonPage: React.FC = () => {
                 <Skeleton />
               </div>
             </div>
+            <div className={s['basket__counts']}>
+              <div className={s['basket__counts-text']}>
+                <Skeleton />
+              </div>
+              <div className={s['basket__counts-product']}>
+                <Skeleton />
+              </div>
+            </div>
             <div className={s['basket__finals']}>
               <div className={s['basket__total-text']}>
                 <Skeleton />

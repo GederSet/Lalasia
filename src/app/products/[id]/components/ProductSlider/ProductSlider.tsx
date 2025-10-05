@@ -2,7 +2,6 @@
 
 import Button from '@components/Button'
 import Card from '@components/Card'
-import ProductSkeleton from '@components/ProductSkeleton'
 import ArrowRoundIcon from '@shared/components/icons/ArrowRoundedIcon'
 import { Meta } from '@shared/config/meta'
 import { ProductType } from '@shared/types/ProductType'
@@ -37,11 +36,11 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
   const prevRef = useRef<HTMLButtonElement | null>(null)
   const nextRef = useRef<HTMLButtonElement | null>(null)
 
-  const productsSkeletons = [...new Array(skeletonCount)].map((_, id) => (
-    <SwiperSlide key={id}>
-      <ProductSkeleton className={s['product-slider__skeleton']} />
-    </SwiperSlide>
-  ))
+  //   const productsSkeletons = [...new Array(skeletonCount)].map((_, id) => (
+  //     <SwiperSlide key={id}>
+  //       <ProductSkeleton className={s['product-slider__skeleton']} />
+  //     </SwiperSlide>
+  //   ))
 
   //   if (meta === Meta.loading) {
   //     return (
@@ -87,6 +86,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
         modules={[Navigation, Pagination]}
         spaceBetween={30}
         slidesPerView={1}
+        loop={true}
         onSwiper={(swiper) => {
           setTimeout(() => {
             if (
@@ -116,6 +116,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
         {products.map((product) => (
           <SwiperSlide key={product.id}>
             <Card
+              discountPercent={product.discountPercent}
               productNumberId={product.id}
               productId={product.documentId}
               className={s['product-slider__card']}

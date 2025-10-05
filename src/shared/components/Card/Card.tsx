@@ -1,5 +1,6 @@
 import { routes } from '@config/routes/routesMask'
 import { useRootStore } from '@shared/store/RootStore'
+import { getDiscount } from '@shared/utils/getDiscount'
 import cn from 'classnames'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -32,10 +33,12 @@ export type CardProps = {
   actionSlot?: React.ReactNode
   productId: string
   productNumberId: number
+  discountPercent: number
 }
 
 const Card: React.FC<CardProps> = ({
   className,
+  discountPercent,
   productId,
   productNumberId,
   images,
@@ -64,6 +67,7 @@ const Card: React.FC<CardProps> = ({
       price: Number(contentSlot),
       description: String(subtitle),
       images: images,
+      discountPercent: discountPercent,
     }
 
     rootStore.cart.addToCart(productInfo)
@@ -76,6 +80,9 @@ const Card: React.FC<CardProps> = ({
         onClick={onClick}
         className={cn(s.card, className)}
       >
+        {discountPercent !== 0 && (
+          <div className={s['card__discount-badge']}>-{discountPercent}%</div>
+        )}
         <div className={s.card__img}>
           {images.length > 1 ? (
             <Swiper
@@ -127,10 +134,19 @@ const Card: React.FC<CardProps> = ({
           </div>
           <div className={s.card__rows}>
             {contentSlot && (
-              <div className={s.card__price}>
-                <Text tag='p' color='primary' weight='bold' view='p-18'>
+              <div className={s.card__prices}>
+                {discountPercent !== 0 && (
+                  <p className={s.card__discount}>
+                    ${getDiscount(Number(contentSlot), discountPercent)}
+                  </p>
+                )}
+                <p
+                  className={cn(s.card__price, {
+                    [s.card__price_discount]: discountPercent !== 0,
+                  })}
+                >
                   ${contentSlot}
-                </Text>
+                </p>
               </div>
             )}
             {actionSlot && (
