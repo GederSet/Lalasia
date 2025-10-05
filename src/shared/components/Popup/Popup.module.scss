@@ -26,7 +26,8 @@
     width: 400px;
     min-height: 200px;
     border-radius: 15px;
-    background-color: white;
+    background-color: var(--panel-bg);
+    color: var(--text);
     transform: scale(0.7);
     transition: transform 0.5s ease 0s;
     @include mixins.respond($media-query-425) {

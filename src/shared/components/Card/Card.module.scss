@@ -3,7 +3,7 @@
 
 .card {
   position: relative;
-  background-color: white;
+  background-color: var(--panel-bg);
   transition: box-shadow 0.3s;
   display: flex;
   flex-direction: column;
@@ -123,13 +123,13 @@
   }
 
   &__discount {
-    color: black;
+    color: var(--text);
     font-size: 20px;
     font-weight: bold;
   }
 
   &__price {
-    color: black;
+    color: var(--text);
     font-size: 20px;
     font-weight: bold;
     &_discount {

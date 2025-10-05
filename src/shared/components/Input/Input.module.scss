@@ -3,8 +3,8 @@
 .custom-input {
   display: flex;
   align-items: center;
-  background-color: white;
-  border: 1px solid white;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border);
 
   &_focused {
     border: 1px solid $input-brand;
@@ -16,7 +16,7 @@
     width: 100%;
     border: 0;
     outline: none;
-    background-color: white;
+    background-color: transparent;
     padding: $space-m 0 $space-m $space-xs;
   }
   &__block {

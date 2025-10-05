@@ -55,7 +55,7 @@
 
   &_color {
     &_primary {
-      color: $text-primary;
+      color: var(--text);
     }
 
     &_secondary {

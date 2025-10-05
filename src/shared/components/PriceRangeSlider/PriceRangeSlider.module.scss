@@ -10,10 +10,10 @@
   }
 
   &__values {
-    background: #f8f9fa;
+    background: var(--panel-bg);
     padding: 8px 12px;
     border-radius: 4px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border);
   }
 
   &__rows {
@@ -47,14 +47,14 @@
     }
 
     :global(.rc-slider-rail) {
-      background: #d6d6d6 !important;
+      background: var(--border) !important;
       height: 4px;
     }
 
     // Стили для ручек слайдера
     :global(.rc-slider-handle) {
       border: 2px solid $brand !important;
-      background: white !important;
+      background: var(--panel-bg) !important;
       width: 20px !important;
       height: 20px !important;
       margin-top: -8px !important;
@@ -64,40 +64,40 @@
 
       &:hover {
         border-color: $brand !important;
-        background: white !important;
+        background: var(--panel-bg) !important;
         transform: scale(1.1);
       }
 
       &:active {
-        background: white !important;
+        background: var(--panel-bg) !important;
         transform: scale(0.95);
       }
 
       &:focus {
-        background: white !important;
+        background: var(--panel-bg) !important;
         box-shadow: 0 0 0 4px rgba($brand, 0.2);
       }
     }
 
     :global(.rc-slider-handle-dragging) {
-      background: white !important;
+      background: var(--panel-bg) !important;
       box-shadow: 0 4px 12px rgba($brand, 0.3) !important;
     }
 
     :global(.rc-slider-handle-click-focused) {
-      background: white !important;
+      background: var(--panel-bg) !important;
       box-shadow: 0 0 0 4px rgba($brand, 0.2) !important;
     }
 
     // Отключенное состояние
     :global(.rc-slider-disabled) {
       .rc-slider-track {
-        background: #d6d6d6 !important;
+        background: var(--border) !important;
       }
 
       .rc-slider-handle {
-        border-color: #d6d6d6 !important;
-        background: #d6d6d6 !important;
+        border-color: var(--border) !important;
+        background: var(--border) !important;
         cursor: not-allowed;
       }
     }

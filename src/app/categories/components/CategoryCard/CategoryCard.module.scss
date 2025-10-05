@@ -20,6 +20,6 @@
   }
 
   &__text {
-    color: $text-primary;
+    color: var(--text);
   }
 }

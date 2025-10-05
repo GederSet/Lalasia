@@ -14,7 +14,7 @@
       gap: 15px;
       &:not(:last-child) {
         padding-bottom: 10px;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid var(--border);
       }
     }
   }
@@ -115,19 +115,16 @@
   }
 
   &__trash path {
-    stroke: #b9b9b9ff;
+    stroke: var(--text);
+    opacity: 0.6;
     transition: stroke 0.2s ease 0s;
   }
 
   &__trash {
     &:hover path {
-      stroke: black;
+      stroke: var(--text);
+      opacity: 1;
     }
-  }
-
-  // .basket__trash
-
-  &__trash {
   }
 
   // .basket__counter
@@ -152,11 +149,11 @@
   }
 
   &__counter-button {
-    background-color: #f3f3f3;
+    background-color: var(--border);
     border-radius: 10px;
     &[disabled] {
       cursor: default;
-      background-color: #dedede;
+      opacity: 0.6;
     }
     @include mixins.respond($media-query-1024) {
       flex: 0 0 32px;

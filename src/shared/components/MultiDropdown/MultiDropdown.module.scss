@@ -17,8 +17,8 @@
   }
 
   &__dropdown {
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border);
     max-height: 200px;
     overflow-y: auto;
     z-index: 1000;
@@ -50,11 +50,11 @@
   &__option {
     padding: $space-s $space-xs;
     cursor: pointer;
-    background-color: white;
+    background-color: var(--panel-bg);
     transition: color 0.2s ease;
 
     &:hover {
-      color: #afadb5;
+      color: $text-secondary;
     }
 
     &_selected {

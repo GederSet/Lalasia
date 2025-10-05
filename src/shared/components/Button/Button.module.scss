@@ -26,16 +26,16 @@
   }
 
   &_transparent {
-    color: black;
+    color: var(--text);
     background-color: transparent;
-    border: 1px solid #afadb5;
+    border: 1px solid var(--transparent-button-border);
 
     &:hover:not(.button_disabled) {
-      background-color: #efefef;
+      background-color: var(--transparent-button-hover);
     }
 
     &:active:not(.button_disabled) {
-      background-color: #e4e4e4;
+      background-color: var(--transparent-button-hover);
     }
   }
 

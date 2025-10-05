@@ -26,7 +26,7 @@
       flex: 1 1 auto;
       padding: 20px;
       border-radius: 10px;
-      background-color: white;
+      background-color: var(--panel-bg);
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -69,7 +69,7 @@
     padding: 20px;
     border-radius: 10px;
     gap: 20px;
-    background-color: white;
+    background-color: var(--panel-bg);
     @include mixins.respond(960px) {
       border-radius: 0px;
     }

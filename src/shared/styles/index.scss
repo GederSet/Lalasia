@@ -1,5 +1,31 @@
 @use '@styles/vars' as *;
 
+:root {
+  --bg: #fafafa;
+  --text: #000000;
+  --header-bg: #ffffff;
+  --border: #f3f3f3;
+  --panel-bg: #ffffff;
+  --pagination-hover: #e0e0e0;
+  --transparent-button-hover: #efefef;
+  --transparent-button-border: #b3b3b3;
+  --skeleton-base: #d9d9d9;
+  --skeleton-highlight: #bababa;
+}
+
+[data-theme='dark'] {
+  --bg: #0f1115;
+  --text: #e6e6e6;
+  --header-bg: #151a21;
+  --border: #2a2f36;
+  --panel-bg: #151a21;
+  --pagination-hover: #2a2f36;
+  --transparent-button-hover: #2a2f36;
+  --transparent-button-border: #2a2f36;
+  --skeleton-base: #1f242c;
+  --skeleton-highlight: #2a303a;
+}
+
 * {
   padding: 0px;
   margin: 0px;
@@ -22,10 +48,10 @@ body {
   width: 100%;
   line-height: 1;
   font-family: 'Roboto';
-  background-color: #fafafa;
+  background-color: var(--bg);
   font-weight: 400;
   font-size: 16px;
-  color: $text-primary;
+  color: var(--text);
   -ms-text-size-abjust: 100%;
   -moz-text-size-abjust: 100%;
   -webkit-text-size-abjust: 100%;
@@ -98,4 +124,17 @@ button:active {
 button::-moz-focus-inner {
   padding: 0;
   border: 0;
+}
+
+:root .react-loading-skeleton,
+:root .react-loading-skeleton::after,
+[data-theme='dark'] .react-loading-skeleton,
+[data-theme='dark'] .react-loading-skeleton::after {
+  background-color: var(--skeleton-base) !important;
+  background-image: linear-gradient(
+    90deg,
+    var(--skeleton-base),
+    var(--skeleton-highlight),
+    var(--skeleton-base)
+  ) !important;
 }

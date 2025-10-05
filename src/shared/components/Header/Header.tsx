@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import BasketIcon from '../icons/BasketIcon'
 import LogoutIcon from '../icons/LogoutIcon'
+import MoonIcon from '../icons/MoonIcon'
+import SunIcon from '../icons/SunIcon'
 import UserIcon from '../icons/UserIcon'
 import Loader from '../Loader'
 import s from './Header.module.scss'
@@ -26,6 +28,7 @@ const menuItems = [
 const Header: React.FC = () => {
   const [isMenuActive, setIsMenuActive] = useState(false)
   const [isPopupOpen, setIsPopupOpen] = useState(false)
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const router = useRouter()
   const rootStore = useRootStore()
 
@@ -45,6 +48,23 @@ const Header: React.FC = () => {
     }
     return () => document.body.classList.remove('_lock')
   }, [isMenuActive])
+
+  // я разделил, чтобы не было бесконечного цикла
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    const saved = (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+    setTheme(saved)
+  }, [])
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+  }
 
   const handleLogout = () => {
     setIsPopupOpen(true)
@@ -89,8 +109,45 @@ const Header: React.FC = () => {
                 </li>
               ))}
             </ul>
+            <div className={s.menu__controls}>
+              <button
+                onClick={toggleTheme}
+                aria-label='Toggle theme'
+                className={s.menu__control}
+              >
+                {theme === 'light' ? (
+                  <MoonIcon width={30} height={30} />
+                ) : (
+                  <SunIcon width={30} height={30} />
+                )}
+              </button>
+              {rootStore.auth.isAuthenticated ? (
+                <div className={s.menu__control} onClick={handleLogout}>
+                  <LogoutIcon width={30} height={30} />
+                </div>
+              ) : (
+                <Link
+                  href={routes.login.mask}
+                  onClick={closeMenu}
+                  className={s.menu__control}
+                >
+                  <UserIcon width={30} height={30} />
+                </Link>
+              )}
+            </div>
           </nav>
           <div className={s.header__rows}>
+            <button
+              onClick={toggleTheme}
+              aria-label='Toggle theme'
+              className={s.header__theme}
+            >
+              {theme === 'light' ? (
+                <MoonIcon width={30} height={30} />
+              ) : (
+                <SunIcon width={30} height={30} />
+              )}
+            </button>
             <Link
               className={s.header__cart}
               href={routes.cart.mask}
@@ -108,11 +165,18 @@ const Header: React.FC = () => {
               <BasketIcon width={30} height={30} />
             </Link>
             {rootStore.auth.isAuthenticated ? (
-              <div className={s.header__logout} onClick={handleLogout}>
+              <div
+                className={s.header__logout + ' ' + s.header__auth}
+                onClick={handleLogout}
+              >
                 <LogoutIcon width={30} height={30} />
               </div>
             ) : (
-              <Link href={routes.login.mask} onClick={closeMenu}>
+              <Link
+                href={routes.login.mask}
+                onClick={closeMenu}
+                className={s.header__auth}
+              >
                 <UserIcon width={30} height={30} />
               </Link>
             )}

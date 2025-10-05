@@ -30,7 +30,7 @@
       flex: 1 1 auto;
       padding: 20px;
       border-radius: 10px;
-      background-color: white;
+      background-color: var(--panel-bg);
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -73,7 +73,7 @@
     padding: 20px;
     border-radius: 10px;
     gap: 17px;
-    background-color: white;
+    background-color: var(--panel-bg);
     @include mixins.respond(960px) {
       border-radius: 0px;
     }
@@ -88,15 +88,7 @@
     gap: 10px;
   }
 
-  // .basket__counts-text
-
-  &__counts-text {
-  }
-
   // .basket__counts-product
-
-  &__counts-product {
-  }
 
   &__rows {
     display: flex;
@@ -112,16 +104,6 @@
     font-weight: 500;
     display: flex;
     justify-content: space-between;
-  }
-
-  // .basket__total-text
-
-  &__total-text {
-  }
-
-  // .basket__total-price
-
-  &__total-price {
   }
 
   // .basket__button
