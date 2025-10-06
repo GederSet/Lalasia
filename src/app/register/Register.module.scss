@@ -100,6 +100,26 @@
     }
   }
 
+  // .registration__line
+  &__line-body {
+    position: absolute;
+    top: 20px;
+    left: 4px;
+    transform: rotate(135deg);
+    width: 32px;
+    height: 1px;
+    .registration__line {
+      display: block;
+      width: 0;
+      height: 1px;
+      background-color: var(--text);
+      transition: width 0.2s ease;
+      &_active {
+        width: 100%;
+      }
+    }
+  }
+
   //  .registration__button
   &__button {
     padding: 16px 14px;

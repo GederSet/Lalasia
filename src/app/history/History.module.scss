@@ -2,7 +2,7 @@
 @use '@styles/mixins' as mixins;
 
 .history {
-  padding: calc(100px + var(--header-height)) 0 113px 0;
+  padding: calc(30px + var(--header-height)) 0 113px 0;
   --card-gap: 30px;
   // .history__container
 

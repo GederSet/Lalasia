@@ -152,9 +152,9 @@ const ProductsList = () => {
               min={rootStore.query.priceRangeGlobal?.min}
               max={rootStore.query.priceRangeGlobal?.max}
               value={[
-                (rootStore.query.getParam('priceRange') as any)?.min ||
+                (rootStore.query.getParam('priceRange') as any)?.min ??
                   rootStore.query.priceRange?.min,
-                (rootStore.query.getParam('priceRange') as any)?.max ||
+                (rootStore.query.getParam('priceRange') as any)?.max ??
                   rootStore.query.priceRange?.max,
               ]}
               onChange={handlePriceRangeChange}
@@ -168,9 +168,9 @@ const ProductsList = () => {
               min={rootStore.query.discountRangeGlobal?.min}
               max={rootStore.query.discountRangeGlobal?.max}
               value={[
-                (rootStore.query.getParam('discountRange') as any)?.min ||
+                (rootStore.query.getParam('discountRange') as any)?.min ??
                   rootStore.query.discountRange?.min,
-                (rootStore.query.getParam('discountRange') as any)?.max ||
+                (rootStore.query.getParam('discountRange') as any)?.max ??
                   rootStore.query.discountRange?.max,
               ]}
               onChange={handleDiscountRangeChange}
@@ -186,9 +186,9 @@ const ProductsList = () => {
               min={rootStore.query.ratingRangeGlobal?.min}
               max={rootStore.query.ratingRangeGlobal?.max}
               value={[
-                (rootStore.query.getParam('ratingRange') as any)?.min ||
+                (rootStore.query.getParam('ratingRange') as any)?.min ??
                   rootStore.query.ratingRange?.min,
-                (rootStore.query.getParam('ratingRange') as any)?.max ||
+                (rootStore.query.getParam('ratingRange') as any)?.max ??
                   rootStore.query.ratingRange?.max,
               ]}
               onChange={handleRatingRangeChange}

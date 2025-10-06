@@ -1,48 +1,62 @@
 'use client'
 
 import Card from '@shared/components/Card'
-import './History.scss'
+import { useRootStore } from '@shared/store/RootStore'
+import { HistoryProductsType } from '@shared/types/HistoryProductsType'
+import { useEffect, useState } from 'react'
+import s from './History.module.scss'
+import NullHistory from './components/NullHistory'
 
 const HistoryPage = () => {
-  const products = JSON.parse(
-    localStorage.getItem('orderHistory') || '[]'
-  ) as Array<{
-    id: number
-    title: string
-    price: number
-    discountPercent: number
-    quantity: number
-    description: string
-    images: { id: number; url: string }[]
-    rating: number
-  }>
+  const rootStore = useRootStore()
+  const [products, setProducts] = useState<HistoryProductsType[]>([])
+
+  useEffect(() => {
+    if (!rootStore.auth.isAuthenticated) {
+      setProducts([])
+      return
+    }
+    try {
+      const raw = localStorage.getItem('orderHistory') || '[]'
+      const parsed = JSON.parse(raw) as HistoryProductsType[]
+      setProducts(Array.isArray(parsed) ? parsed : [])
+    } catch (e) {
+      setProducts([])
+    }
+  }, [rootStore.auth.isAuthenticated])
 
   console.log(products)
 
   return (
-    <section className='history'>
-      <div className='history__container'>
-        <h2 className='history__title'>History</h2>
-        <div className='history__body'>
-          {products.length === 0 ? (
-            <div>No orders yet</div>
-          ) : (
-            products.map((item) => (
-              <Card
-                key={item.id}
-                className='history__card'
-                images={item.images}
-                title={item.title}
-                subtitle={item.description}
-                contentSlot={`${item.price}`}
-                productId={String(item.id)}
-                productNumberId={item.id}
-                discountPercent={item.discountPercent}
-                rating={item.rating}
-              />
-            ))
-          )}
-        </div>
+    <section className={s.history}>
+      <div className={s.history__container}>
+        {!rootStore.auth.isAuthenticated || products.length === 0 ? (
+          <NullHistory
+            title="You haven't bought anything yet"
+            text='Go to the main page to select the products'
+          />
+        ) : (
+          <>
+            <h2 className={s.history__title}>History</h2>
+            <div className={s.history__body}>
+              {products.map((item, index) => (
+                <Card
+                  key={`${item.id}-${item.createdAt ?? index}`}
+                  productNumberId={item.id}
+                  productId={item.documentId}
+                  className={s.history__card}
+                  images={item.images}
+                  discountPercent={item.discountPercent}
+                  captionSlot={item.productCategory?.title}
+                  title={item.title}
+                  rating={item.rating}
+                  subtitle={item.description}
+                  contentSlot={`${item.price}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   )

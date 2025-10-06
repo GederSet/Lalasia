@@ -2,9 +2,11 @@
 
 import Button from '@components/Button'
 import { routes } from '@config/routes/routesMask'
-import { TextField } from '@mui/material'
+import { IconButton, InputAdornment, TextField } from '@mui/material'
+import EyeIcon from '@shared/components/icons/EyeIcon'
 import { Meta } from '@shared/config/meta'
 import { useRootStore } from '@shared/store/RootStore'
+import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -23,6 +25,8 @@ const RegisterPage: React.FC = () => {
   const rootStore = useRootStore()
   const router = useRouter()
   const [registrationError, setRegistrationError] = React.useState<string>('')
+  const [showPassword, setShowPassword] = React.useState(false)
+  const [showPasswordRepeat, setShowPasswordRepeat] = React.useState(false)
 
   const {
     watch,
@@ -93,7 +97,7 @@ const RegisterPage: React.FC = () => {
           />
 
           <TextField
-            type='password'
+            type={showPassword ? 'text' : 'password'}
             error={Boolean(errors.password?.message)}
             helperText={errors.password?.message}
             {...register('password', {
@@ -104,10 +108,32 @@ const RegisterPage: React.FC = () => {
             label='Password'
             className={s.registration__input}
             fullWidth
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position='end' sx={{ ml: 0, mr: 1 }}>
+                    <IconButton
+                      aria-label='toggle password visibility'
+                      onClick={() => setShowPassword((v) => !v)}
+                      edge='end'
+                    >
+                      <span className={cn(s['registration__line-body'])}>
+                        <span
+                          className={cn(s['registration__line'], {
+                            [s['registration__line_active']]: showPassword,
+                          })}
+                        ></span>
+                      </span>
+                      <EyeIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
 
           <TextField
-            type='password'
+            type={showPasswordRepeat ? 'text' : 'password'}
             error={Boolean(errors.passwordConfirmation?.message)}
             helperText={errors.passwordConfirmation?.message}
             {...register('passwordConfirmation', {
@@ -118,6 +144,29 @@ const RegisterPage: React.FC = () => {
             label='Repeat the password'
             className={s.registration__input}
             fullWidth
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position='end' sx={{ ml: 0, mr: 1 }}>
+                    <IconButton
+                      aria-label='toggle password visibility'
+                      onClick={() => setShowPasswordRepeat((v) => !v)}
+                      edge='end'
+                    >
+                      <span className={cn(s['registration__line-body'])}>
+                        <span
+                          className={cn(s['registration__line'], {
+                            [s['registration__line_active']]:
+                              showPasswordRepeat,
+                          })}
+                        ></span>
+                      </span>
+                      <EyeIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
 
           {registrationError && (

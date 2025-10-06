@@ -2,8 +2,10 @@
 
 import Button from '@components/Button'
 import { routes } from '@config/routes/routesMask'
-import { TextField } from '@mui/material'
+import { IconButton, InputAdornment, TextField } from '@mui/material'
+import EyeIcon from '@shared/components/icons/EyeIcon'
 import { useRootStore } from '@shared/store/RootStore'
+import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -20,6 +22,7 @@ const LoginPage: React.FC = () => {
   const rootStore = useRootStore()
   const router = useRouter()
   const [loginError, setLoginError] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -62,13 +65,35 @@ const LoginPage: React.FC = () => {
           />
 
           <TextField
-            type='password'
+            type={showPassword ? 'text' : 'password'}
             error={Boolean(errors.password?.message)}
             helperText={errors.password?.message}
             {...register('password', { required: 'Enter a password' })}
             label='password'
             className={s.login__input}
             fullWidth
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position='end' sx={{ ml: 0, mr: 1 }}>
+                    <IconButton
+                      aria-label='toggle password visibility'
+                      onClick={() => setShowPassword((v) => !v)}
+                      edge='end'
+                    >
+                      <span className={cn(s['login__line-body'])}>
+                        <span
+                          className={cn(s['login__line'], {
+                            [s['login__line_active']]: showPassword,
+                          })}
+                        ></span>
+                      </span>
+                      <EyeIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
 
           {loginError && <div className={s.login__error}>{loginError}</div>}

@@ -198,20 +198,32 @@ export default class QueryParamsStore implements IQueryParamsStore {
         : undefined,
       priceRange: parsed.priceRange
         ? {
-            min: Number((parsed.priceRange as any)?.min) || 0,
-            max: Number((parsed.priceRange as any)?.max) || 1000,
+            min: Number.isNaN(Number((parsed.priceRange as any)?.min))
+              ? 0
+              : Number((parsed.priceRange as any)?.min),
+            max: Number.isNaN(Number((parsed.priceRange as any)?.max))
+              ? 1000
+              : Number((parsed.priceRange as any)?.max),
           }
         : undefined,
       discountRange: parsed.discountRange
         ? {
-            min: Number((parsed.discountRange as any)?.min) || 0,
-            max: Number((parsed.discountRange as any)?.max) || 100,
+            min: Number.isNaN(Number((parsed.discountRange as any)?.min))
+              ? 0
+              : Number((parsed.discountRange as any)?.min),
+            max: Number.isNaN(Number((parsed.discountRange as any)?.max))
+              ? 100
+              : Number((parsed.discountRange as any)?.max),
           }
         : undefined,
       ratingRange: parsed.ratingRange
         ? {
-            min: Number((parsed.ratingRange as any)?.min) || 0,
-            max: Number((parsed.ratingRange as any)?.max) || 5,
+            min: Number.isNaN(Number((parsed.ratingRange as any)?.min))
+              ? 0
+              : Number((parsed.ratingRange as any)?.min),
+            max: Number.isNaN(Number((parsed.ratingRange as any)?.max))
+              ? 5
+              : Number((parsed.ratingRange as any)?.max),
           }
         : undefined,
       isInStock:

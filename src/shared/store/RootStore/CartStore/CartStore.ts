@@ -15,6 +15,8 @@ export type CartItem = {
     discountPercent: number
     description: string
     images: { id: number; url: string }[]
+    productCategory?: { id: number; title: string }
+    rating?: number
   }
   quantity: number
 }

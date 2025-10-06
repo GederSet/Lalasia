@@ -6,6 +6,7 @@ import Loader from '@shared/components/Loader'
 import Popup from '@shared/components/Popup'
 import { Meta } from '@shared/config/meta'
 import { useAnimatedNumber } from '@shared/hooks/useConfigureNumbers'
+import { HistoryProductsType } from '@shared/types/HistoryProductsType'
 import { useRootStore } from '@store/RootStore'
 import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
@@ -89,14 +90,24 @@ const CartList: React.FC = () => {
         ? JSON.parse(raw || '[]')
         : []
 
-      const newProducts = rootStore.cart.items.map((i) => ({
-        id: i.product.id,
-        title: i.product.title,
-        price: i.product.price,
-        discountPercent: i.product.discountPercent,
-        quantity: i.quantity,
-        images: i.product.images,
-      }))
+      const createdAt = Date.now()
+      const newProducts: HistoryProductsType[] = rootStore.cart.items.map(
+        (i) => ({
+          id: i.product.id,
+          documentId: i.product.documentId,
+          title: i.product.title,
+          price: i.product.price,
+          discountPercent: i.product.discountPercent,
+          quantity: i.quantity,
+          images: i.product.images,
+          productCategory: i.product.productCategory
+            ? { title: i.product.productCategory.title }
+            : { title: '' },
+          description: i.product.description,
+          rating: i.product.rating ?? 0,
+          createdAt,
+        })
+      )
 
       const next = [...newProducts, ...prev]
 

@@ -1,5 +1,6 @@
 import Button from '@components/Button'
 import Text from '@components/Text'
+import ConfirmPurchasePopup from '@shared/components/ConfirmPurchasePopup/ConfirmPurchasePopup'
 import Popup from '@shared/components/Popup'
 import { useRootStore } from '@shared/store/RootStore'
 import { ProductType } from '@shared/types/ProductType'
@@ -28,6 +29,40 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
   const discountedPrice = hasDiscount
     ? getDiscount(product.price, discountPercent)
     : product.price
+
+  const handleBuyProduct = useCallback(() => {
+    const KEY = 'orderHistory'
+    const createdAt = Date.now()
+
+    try {
+      const raw = localStorage.getItem(KEY)
+      const prev = Array.isArray(JSON.parse(raw || '[]'))
+        ? JSON.parse(raw || '[]')
+        : []
+
+      const newProduct = {
+        id: product.id,
+        documentId: product.documentId,
+        title: product.title,
+        price: product.price,
+        discountPercent: discountPercent,
+        quantity: 1,
+        images: product.images,
+        productCategory: product.productCategory
+          ? { title: product.productCategory.title }
+          : { title: '' },
+        description: product.description,
+        rating: product.rating ?? 0,
+        createdAt,
+      }
+
+      const next = [newProduct, ...prev]
+
+      localStorage.setItem(KEY, JSON.stringify(next))
+    } catch (e) {
+      console.error('Failed to write order to localStorage', e)
+    }
+  }, [product, discountPercent])
 
   const handleAddProductToBasket = useCallback(() => {
     if (!rootStore.auth.isAuthenticated) {
@@ -59,9 +94,9 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
               modules={[Navigation, Pagination, Autoplay]}
               spaceBetween={0}
               slidesPerView={1}
-              navigation={true}
+              navigation
               pagination={{ clickable: true }}
-              loop={true}
+              loop
               className={s['product-info__swiper']}
             >
               {product.images.map((image, index) => (
@@ -98,16 +133,14 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
           <div className={s['product-info__price-box']}>
             <div className={s['product-info__prices']}>
               {hasDiscount && (
-                <p className={s['product-info__price']}>
-                  {`$${discountedPrice}`}
-                </p>
+                <p className={s['product-info__price']}>${discountedPrice}</p>
               )}
               <p
                 className={cn(s['product-info__price'], {
                   [s['product-info__price_discount']]: hasDiscount,
                 })}
               >
-                {`$${product.price}`}
+                ${product.price}
               </p>
             </div>
             <div className={s['product-info__buttons']}>
@@ -135,40 +168,9 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
         type='alert'
         onConfirm={() => setIsPopupOpen(false)}
       />
-      <Popup
+      <ConfirmPurchasePopup
         isOpen={isBuyPopupOpen}
-        title='Confirm Purchase'
-        description='Do you want to buy this product now?'
-        type='confirm'
-        onConfirm={() => {
-          try {
-            const order = {
-              createdAt: new Date().toISOString(),
-              items: [
-                {
-                  id: product.id,
-                  title: product.title,
-                  price: product.price,
-                  discountPercent: discountPercent,
-                  quantity: 1,
-                },
-              ],
-              totals: {
-                count: 1,
-                fullPrice: product.price,
-                discount: hasDiscount ? product.price - discountedPrice : 0,
-                total: discountedPrice,
-              },
-            }
-            const KEY = 'orderHistory'
-            const prev = JSON.parse(localStorage.getItem(KEY) || '[]')
-            const next = Array.isArray(prev) ? [...prev, order] : [order]
-            localStorage.setItem(KEY, JSON.stringify(next))
-          } catch (e) {
-            console.error('Failed to write order to localStorage', e)
-          }
-          setIsBuyPopupOpen(false)
-        }}
+        onConfirm={handleBuyProduct}
         onCancel={() => setIsBuyPopupOpen(false)}
       />
     </>
