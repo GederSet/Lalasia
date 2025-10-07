@@ -1,0 +1,137 @@
+@use '@styles/vars' as *;
+@use '@styles/mixins' as mixins;
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  @include mixins.respond($media-query-375) {
+    gap: 25px;
+  }
+
+  &__form {
+    display: flex;
+    gap: 10px;
+    @include mixins.respond($media-query-375) {
+      flex-direction: column;
+    }
+  }
+
+  &__title {
+    font-size: 28px;
+    margin-bottom: 5px;
+  }
+
+  &__input {
+    :global(.MuiOutlinedInput-root) {
+      color: var(--text);
+      background-color: var(--panel-bg);
+      .MuiOutlinedInput-notchedOutline {
+        border-color: var(--auth-border);
+      }
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: var(--auth-border);
+      }
+    }
+
+    :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+      border-color: var(--auth-border);
+    }
+    :global(
+        .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline
+      ) {
+      border-color: $brand;
+    }
+    :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
+      border-color: $brand;
+    }
+
+    :global(.MuiInputBase-input) {
+      color: var(--text);
+    }
+
+    :global(.MuiOutlinedInput-root.Mui-focused) fieldset {
+      border-color: $brand;
+    }
+
+    :global(.MuiInputLabel-root.Mui-focused) {
+      color: $brand;
+    }
+
+    :global(.MuiInputLabel-root) {
+      color: var(--text);
+    }
+
+    :global(.MuiFormHelperText-root) {
+      color: $text-secondary;
+    }
+
+    :global(input:-webkit-autofill),
+    :global(input:-webkit-autofill:hover),
+    :global(input:-webkit-autofill:focus) {
+      -webkit-text-fill-color: var(--text);
+      box-shadow: 0 0 0px 1000px var(--panel-bg) inset;
+      transition: background-color 99999s ease 0s;
+      caret-color: var(--text);
+    }
+    :global(input:-moz-autofill) {
+      box-shadow: 0 0 0px 1000px var(--panel-bg) inset;
+      -moz-text-fill-color: var(--text);
+      caret-color: var(--text);
+    }
+  }
+
+  &__button {
+    height: 56px;
+    border-radius: 6px;
+  }
+
+  &__success {
+    color: $brand;
+  }
+
+  &__avatarBlock {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  &__avatarWrapper {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid var(--auth-border);
+    background-color: var(--panel-bg);
+    cursor: pointer;
+  }
+
+  &__avatarImg {
+    object-fit: cover;
+  }
+
+  &__avatarInput {
+    display: none;
+  }
+
+  &__avatarRemoveBtn {
+    position: absolute;
+    z-index: 2;
+    left: 40px;
+    top: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: $brand;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+}

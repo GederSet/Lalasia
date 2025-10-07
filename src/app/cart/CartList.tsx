@@ -86,9 +86,10 @@ const CartList: React.FC = () => {
 
     try {
       const raw = localStorage.getItem(KEY)
-      const prev = Array.isArray(JSON.parse(raw || '[]'))
-        ? JSON.parse(raw || '[]')
-        : []
+      const store = raw ? JSON.parse(raw) : {}
+      const email = rootStore.auth.currentUser?.email
+      if (!email) throw new Error('No user email for history write')
+      const prev: any[] = Array.isArray(store[email]) ? store[email] : []
 
       const createdAt = Date.now()
       const newProducts: HistoryProductsType[] = rootStore.cart.items.map(
@@ -110,8 +111,8 @@ const CartList: React.FC = () => {
       )
 
       const next = [...newProducts, ...prev]
-
-      localStorage.setItem(KEY, JSON.stringify(next))
+      const updated = { ...store, [email]: next }
+      localStorage.setItem(KEY, JSON.stringify(updated))
     } catch (e) {
       console.error('Failed to write order to localStorage', e)
     }

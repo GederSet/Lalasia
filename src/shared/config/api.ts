@@ -8,4 +8,5 @@ export const API_ENDPOINTS = {
 
   LOGIN: '/api/auth/local',
   REGISTER: '/api/auth/local/register',
+  CHANGE_PASSWORD: '/api/auth/change-password',
 }

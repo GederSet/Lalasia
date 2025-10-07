@@ -426,6 +426,7 @@ export default class QueryParamsStore implements IQueryParamsStore {
         this._ratingRangeGlobal.max
       )
       this.setPagination()
+      this.setInStock(false)
     })
   }
 

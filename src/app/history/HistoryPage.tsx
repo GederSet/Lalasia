@@ -17,13 +17,16 @@ const HistoryPage = () => {
       return
     }
     try {
-      const raw = localStorage.getItem('orderHistory') || '[]'
-      const parsed = JSON.parse(raw) as HistoryProductsType[]
-      setProducts(Array.isArray(parsed) ? parsed : [])
+      const raw = localStorage.getItem('orderHistory')
+      const store = raw ? JSON.parse(raw) : {}
+      const email = rootStore.auth.currentUser?.email
+      const list: any[] =
+        email && Array.isArray(store[email]) ? store[email] : []
+      setProducts(list as HistoryProductsType[])
     } catch (e) {
       setProducts([])
     }
-  }, [rootStore.auth.isAuthenticated])
+  }, [rootStore.auth.isAuthenticated, rootStore.auth.currentUser?.email])
 
   console.log(products)
 
@@ -47,11 +50,15 @@ const HistoryPage = () => {
                   className={s.history__card}
                   images={item.images}
                   discountPercent={item.discountPercent}
-                  captionSlot={item.productCategory?.title}
+                  captionSlot={
+                    item.productCategory?.title
+                      ? `${item.productCategory.title}, Qty: ${item.quantity}`
+                      : `Qty: ${item.quantity}`
+                  }
                   title={item.title}
                   rating={item.rating}
                   subtitle={item.description}
-                  contentSlot={`${item.price}`}
+                  contentSlot={`${item.price * item.quantity}`}
                 />
               ))}
             </div>

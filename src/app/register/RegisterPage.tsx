@@ -8,6 +8,7 @@ import { Meta } from '@shared/config/meta'
 import { useRootStore } from '@shared/store/RootStore'
 import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
@@ -27,6 +28,67 @@ const RegisterPage: React.FC = () => {
   const [registrationError, setRegistrationError] = React.useState<string>('')
   const [showPassword, setShowPassword] = React.useState(false)
   const [showPasswordRepeat, setShowPasswordRepeat] = React.useState(false)
+  const [avatar, setAvatar] = React.useState<string>('/noavatar.png')
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
+
+  const getAvatarKeyByEmail = (email: string) =>
+    `_avatar_${email.trim().toLowerCase()}`
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    setAvatar('/noavatar.png')
+  }, [])
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : null
+      if (result) {
+        setAvatar(result)
+        if (typeof window !== 'undefined') {
+          const emailValue = watch('email')
+          if (emailValue) {
+            const key = getAvatarKeyByEmail(emailValue)
+            localStorage.setItem(key, result)
+            // dispatchEvent связывает все
+            // слушатели в window
+            window.dispatchEvent(
+              // тут просто создаем свое событие
+              new CustomEvent('avatar:update', {
+                detail: { key, value: result },
+              })
+            )
+          }
+        }
+      }
+    }
+    reader.readAsDataURL(file)
+
+    // удаляем картинку, чтобы при повторе записывалась
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const openFileDialog = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleAvatarClear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setAvatar('/noavatar.png')
+    if (typeof window !== 'undefined') {
+      const emailValue = watch('email')
+      if (emailValue) {
+        const key = getAvatarKeyByEmail(emailValue)
+        localStorage.removeItem(key)
+        window.dispatchEvent(
+          new CustomEvent('avatar:update', { detail: { key, value: '' } })
+        )
+      }
+    }
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   const {
     watch,
@@ -48,6 +110,13 @@ const RegisterPage: React.FC = () => {
     try {
       await rootStore.auth.register(trimmedData)
       if (rootStore.auth.meta === Meta.success) {
+        if (typeof window !== 'undefined' && avatar) {
+          const key = getAvatarKeyByEmail(trimmedData.email)
+          localStorage.setItem(key, avatar)
+          window.dispatchEvent(
+            new CustomEvent('avatar:update', { detail: { key, value: avatar } })
+          )
+        }
         router.replace(routes.main.mask)
       }
     } catch (err: any) {
@@ -67,6 +136,41 @@ const RegisterPage: React.FC = () => {
           className={s.registration__body}
         >
           <h1 className={s.registration__title}>Sign up</h1>
+
+          <div className={s.registration__avatarBlock}>
+            {avatar !== '/noavatar.png' && (
+              <button
+                type='button'
+                className={s.registration__avatarRemoveBtn}
+                onClick={handleAvatarClear}
+                aria-label='Remove avatar'
+              >
+                ×
+              </button>
+            )}
+            <div
+              className={s.registration__avatarWrapper}
+              onClick={openFileDialog}
+              role='button'
+              aria-label='Upload avatar'
+            >
+              <Image
+                src={avatar}
+                alt='User avatar'
+                fill
+                sizes='56px'
+                className={s.registration__avatarImg}
+                priority
+              />
+            </div>
+            <input
+              ref={fileInputRef}
+              className={s.registration__avatarInput}
+              type='file'
+              accept='image/*'
+              onChange={handleAvatarChange}
+            />
+          </div>
 
           <TextField
             error={Boolean(errors.username?.message)}

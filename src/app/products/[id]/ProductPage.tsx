@@ -12,15 +12,7 @@ import ProductSlider from './components/ProductSlider'
 import s from './Product.module.scss'
 
 const ProductPageComponent = () => {
-  // const params = useParams()
   const productStore = useProductPageStore()
-
-  // useEffect(() => {
-  //   const id = Array.isArray(params?.id) ? params.id[0] : params?.id
-  //   if (id) {
-  //     productStore.fetchProductAndRelated(id, 3)
-  //   }
-  // }, [params?.id])
 
   return (
     <section className={s.product}>

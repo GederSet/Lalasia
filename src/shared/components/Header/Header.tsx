@@ -8,6 +8,7 @@ import { Meta } from '@shared/config/meta'
 import { useRootStore } from '@shared/store/RootStore'
 import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
@@ -19,17 +20,21 @@ import UserIcon from '../icons/UserIcon'
 import Loader from '../Loader'
 import s from './Header.module.scss'
 
-const menuItems = [
+type MenuItem = { label: string; to: string; isHide?: boolean }
+
+const menuItems: MenuItem[] = [
   { label: 'Products', to: routes.main.mask },
   { label: 'Categories', to: routes.categories.mask },
   { label: 'About us', to: routes.aboutUs.mask },
-  { label: 'History', to: routes.history.mask },
+  { label: 'History', to: routes.history.mask, isHide: true },
+  { label: 'Settings', to: routes.settings.mask, isHide: true },
 ]
 
 const Header: React.FC = () => {
   const [isMenuActive, setIsMenuActive] = useState(false)
   const [isPopupOpen, setIsPopupOpen] = useState(false)
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [avatar, setAvatar] = useState<string | null>(null)
   const router = useRouter()
   const rootStore = useRootStore()
 
@@ -56,6 +61,36 @@ const Header: React.FC = () => {
     const saved = (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
     setTheme(saved)
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const email = rootStore.auth.currentUser?.email
+    if (!email) {
+      setAvatar(null)
+      return
+    }
+    const key = `_avatar_${email.trim().toLowerCase()}`
+    const savedAvatar = localStorage.getItem(key)
+    setAvatar(savedAvatar)
+  }, [rootStore.auth.currentUser?.email])
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const email = rootStore.auth.currentUser?.email
+      if (!email) return
+      const key = `_avatar_${email.trim().toLowerCase()}`
+      const detail = (e as CustomEvent).detail as {
+        key?: string
+        value?: string
+      }
+      if (detail?.key === key) {
+        setAvatar(detail.value || null)
+      }
+    }
+    window.addEventListener('avatar:update', handler as EventListener)
+    return () =>
+      window.removeEventListener('avatar:update', handler as EventListener)
+  }, [rootStore.auth.currentUser?.email])
 
   useEffect(() => {
     if (typeof document === 'undefined') return
@@ -97,7 +132,10 @@ const Header: React.FC = () => {
             })}
           >
             <ul className={s.menu__list}>
-              {menuItems.map((item) => (
+              {(isMenuActive
+                ? menuItems
+                : menuItems.filter((i) => !i.isHide)
+              ).map((item) => (
                 <li key={item.to} className={s.menu__item}>
                   <CustomLink
                     className={s.menu__link}
@@ -132,7 +170,20 @@ const Header: React.FC = () => {
                   onClick={closeMenu}
                   className={s.menu__control}
                 >
-                  <UserIcon width={30} height={30} />
+                  {avatar ? (
+                    <span className={s.header__avatar}>
+                      <Image
+                        src={avatar}
+                        alt='User avatar'
+                        fill
+                        sizes='30px'
+                        className={s.header__avatar_img}
+                        priority
+                      />
+                    </span>
+                  ) : (
+                    <UserIcon width={30} height={30} />
+                  )}
                 </Link>
               )}
             </div>
@@ -166,11 +217,43 @@ const Header: React.FC = () => {
               <BasketIcon width={30} height={30} />
             </Link>
             {rootStore.auth.isAuthenticated ? (
-              <div
-                className={s.header__logout + ' ' + s.header__auth}
-                onClick={handleLogout}
-              >
-                <LogoutIcon width={30} height={30} />
+              <div className={cn(s.menu__control, s.menu__control_user)}>
+                {avatar ? (
+                  <span className={s.header__avatar}>
+                    <Image
+                      src={avatar}
+                      alt='User avatar'
+                      fill
+                      sizes='30px'
+                      className={s.header__avatar_img}
+                      priority
+                    />
+                  </span>
+                ) : (
+                  <UserIcon width={30} height={30} />
+                )}
+                <div className={s.menu__wrapper}>
+                  <div className={s.menu__body}>
+                    <Link
+                      href={routes.history.mask}
+                      className={s['menu__item-control']}
+                    >
+                      History
+                    </Link>
+                    <Link
+                      href={routes.settings.mask}
+                      className={s['menu__item-control']}
+                    >
+                      Settings
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className={s['menu__item-control']}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <Link

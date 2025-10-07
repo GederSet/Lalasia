@@ -36,9 +36,10 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
 
     try {
       const raw = localStorage.getItem(KEY)
-      const prev = Array.isArray(JSON.parse(raw || '[]'))
-        ? JSON.parse(raw || '[]')
-        : []
+      const store = raw ? JSON.parse(raw) : {}
+      const email = rootStore.auth.currentUser?.email
+      if (!email) throw new Error('No user email for history write')
+      const prev: any[] = Array.isArray(store[email]) ? store[email] : []
 
       const newProduct = {
         id: product.id,
@@ -57,12 +58,12 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
       }
 
       const next = [newProduct, ...prev]
-
-      localStorage.setItem(KEY, JSON.stringify(next))
+      const updated = { ...store, [email]: next }
+      localStorage.setItem(KEY, JSON.stringify(updated))
     } catch (e) {
       console.error('Failed to write order to localStorage', e)
     }
-  }, [product, discountPercent])
+  }, [product, discountPercent, rootStore.auth.currentUser?.email])
 
   const handleAddProductToBasket = useCallback(() => {
     if (!rootStore.auth.isAuthenticated) {
@@ -146,7 +147,13 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
             <div className={s['product-info__buttons']}>
               <Button
                 className={s['product-info_button']}
-                onClick={() => setIsBuyPopupOpen(true)}
+                onClick={() => {
+                  if (!rootStore.auth.isAuthenticated) {
+                    setIsPopupOpen(true)
+                    return
+                  }
+                  setIsBuyPopupOpen(true)
+                }}
               >
                 Buy Now
               </Button>

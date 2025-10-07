@@ -21,6 +21,12 @@ type RegisterDto = {
   password: string
 }
 
+type ChangePasswordDto = {
+  password: string
+  currentPassword: string
+  passwordConfirmation: string
+}
+
 type PrivateFields = '_currentUser' | '_token' | '_meta'
 
 export interface IAuthStore {
@@ -32,6 +38,9 @@ export interface IAuthStore {
   initFromStorage(): void
   login(data: LoginDto): Promise<void>
   register(data: RegisterDto): Promise<void>
+  changePassword(data: ChangePasswordDto): Promise<void>
+  updateEmail(email: string): Promise<void>
+  updateUsername(username: string): Promise<void>
   logout(): void
   destroy(): void
   setMeta(meta: Meta): void
@@ -61,6 +70,9 @@ export default class AuthStore implements IAuthStore {
 
       login: action,
       register: action,
+      changePassword: action,
+      updateEmail: action,
+      updateUsername: action,
       logout: action,
       setMeta: action,
       setUser: action,
@@ -139,6 +151,8 @@ export default class AuthStore implements IAuthStore {
       const result = await response.json()
       const { jwt, user } = result
 
+      console.log(result)
+
       runInAction(() => {
         this.setToken(jwt)
         this.setUser({
@@ -181,6 +195,109 @@ export default class AuthStore implements IAuthStore {
           username: user.username,
           email: user.email,
         })
+        this.setMeta(Meta.success)
+      })
+    } catch (err) {
+      runInAction(() => this.setMeta(Meta.error))
+      throw err
+    }
+  }
+
+  async changePassword(data: ChangePasswordDto) {
+    this.setMeta(Meta.loading)
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BASE_URL + API_ENDPOINTS.CHANGE_PASSWORD,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${this._token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        }
+      )
+
+      if (!response.ok) throw new Error('Change password failed')
+
+      runInAction(() => {
+        this.setMeta(Meta.success)
+      })
+    } catch (err) {
+      console.error(err)
+      runInAction(() => this.setMeta(Meta.error))
+      throw err
+    }
+  }
+
+  async updateEmail(email: string) {
+    if (!this._currentUser) throw new Error('No current user')
+    this.setMeta(Meta.loading)
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${this._currentUser.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${this._token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        }
+      )
+
+      console.log(this._currentUser.id)
+      console.log(email)
+      console.log(response)
+
+      if (!response.ok) {
+        let message = 'Failed to update email'
+        try {
+          const payload = await response.json()
+          if (payload?.error?.message) message = payload.error.message
+        } catch {}
+        throw new Error(message)
+      }
+
+      await response.json()
+      runInAction(() => {
+        this.setUser({ ...this._currentUser!, email })
+        this.setMeta(Meta.success)
+      })
+    } catch (err) {
+      runInAction(() => this.setMeta(Meta.error))
+      throw err
+    }
+  }
+
+  async updateUsername(username: string) {
+    if (!this._currentUser) throw new Error('No current user')
+    this.setMeta(Meta.loading)
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${this._currentUser.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${this._token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username }),
+        }
+      )
+
+      if (!response.ok) {
+        let message = 'Failed to update username'
+        try {
+          const payload = await response.json()
+          if (payload?.error?.message) message = payload.error.message
+        } catch {}
+        throw new Error(message)
+      }
+
+      await response.json()
+      runInAction(() => {
+        this.setUser({ ...this._currentUser!, username })
         this.setMeta(Meta.success)
       })
     } catch (err) {

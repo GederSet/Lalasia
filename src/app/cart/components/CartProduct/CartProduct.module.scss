@@ -149,7 +149,7 @@
   }
 
   &__counter-button {
-    background-color: var(--border);
+    background-color: var(--counter-bg);
     border-radius: 10px;
     &[disabled] {
       cursor: default;

@@ -13,6 +13,8 @@
   --skeleton-base: #d9d9d9;
   --skeleton-highlight: #bababa;
   --auth-border: #b3b3b3;
+  --settings-section-bg: #ebebeb;
+  --counter-bg: #e4e4e4;
 }
 
 [data-theme='dark'] {
@@ -28,6 +30,8 @@
   --skeleton-base: #1f242c;
   --skeleton-highlight: #2a303a;
   --auth-border: #2a2f36;
+  --settings-section-bg: #2a2f36;
+  --counter-bg: #2a2f36;
 }
 
 * {
