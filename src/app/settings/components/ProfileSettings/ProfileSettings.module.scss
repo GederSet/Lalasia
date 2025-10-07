@@ -90,6 +90,9 @@
     color: $brand;
   }
 
+  &__test {
+  }
+
   &__avatarBlock {
     display: flex;
     align-items: center;
@@ -97,7 +100,7 @@
     position: relative;
     margin-bottom: 10px;
   }
-
+  // test
   &__avatarWrapper {
     position: relative;
     width: 56px;
