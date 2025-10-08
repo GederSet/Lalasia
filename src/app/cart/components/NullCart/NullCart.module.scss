@@ -8,6 +8,7 @@
   align-items: center;
   text-align: center;
   gap: 28px;
+  position: relative;
   // .empty-basket__title
 
   &__title {
@@ -36,4 +37,32 @@
       background-color: $button-brand-active;
     }
   }
+
+  &__eyes {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+  }
+}
+
+.eye {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.eye__pupil {
+  --dx: 0px;
+  --dy: 0px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: black;
+  transform: translate(var(--dx), var(--dy));
+  transition: transform 70ms linear;
 }

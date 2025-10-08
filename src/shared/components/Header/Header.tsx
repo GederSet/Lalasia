@@ -55,7 +55,6 @@ const Header: React.FC = () => {
     return () => document.body.classList.remove('_lock')
   }, [isMenuActive])
 
-  // я разделил, чтобы не было бесконечного цикла
   useEffect(() => {
     if (typeof document === 'undefined') return
     const saved = (localStorage.getItem('theme') as 'light' | 'dark') || 'light'

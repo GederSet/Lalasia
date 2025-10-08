@@ -1,10 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 
-/**
- * Анимирует число от предыдущего отображённого значения к целевому при каждом изменении target.
- * Удобно, когда нужно просто передать конечное значение, а старт берётся из предыдущего стейта.
- */
 export function useAnimatedNumber(target: number, duration: number = 250) {
   const [value, setValue] = useState(target)
   const frame = useRef<number | null>(null)

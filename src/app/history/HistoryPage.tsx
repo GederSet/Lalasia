@@ -28,8 +28,6 @@ const HistoryPage = () => {
     }
   }, [rootStore.auth.isAuthenticated, rootStore.auth.currentUser?.email])
 
-  console.log(products)
-
   return (
     <section className={s.history}>
       <div className={s.history__container}>

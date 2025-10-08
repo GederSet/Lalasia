@@ -7,6 +7,8 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean
   children: React.ReactNode
   buttonStyle?: 'green' | 'transparent'
+  loaderSize?: 'xs' | 's' | 'm' | 'l'
+  loaderColor?: 'green' | 'white'
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -16,6 +18,8 @@ const Button: React.FC<ButtonProps> = ({
   children,
   onClick,
   buttonStyle = 'green',
+  loaderSize = 's',
+  loaderColor = 'white',
   ...props
 }) => {
   return (
@@ -31,8 +35,8 @@ const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       {...props}
     >
-      {loading && <Loader size='s' loaderColor='white' />}
       {children}
+      {loading && <Loader size={loaderSize} loaderColor={loaderColor} />}
     </button>
   )
 }

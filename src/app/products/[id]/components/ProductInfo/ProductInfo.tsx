@@ -24,6 +24,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
   const rootStore = useRootStore()
   const [isPopupOpen, setIsPopupOpen] = useState(false)
   const [isBuyPopupOpen, setIsBuyPopupOpen] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
   const discountPercent = product.discountPercent ?? 0
   const hasDiscount = discountPercent > 0
   const discountedPrice = hasDiscount
@@ -65,7 +66,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
     }
   }, [product, discountPercent, rootStore.auth.currentUser?.email])
 
-  const handleAddProductToBasket = useCallback(() => {
+  const handleAddProductToBasket = useCallback(async () => {
     if (!rootStore.auth.isAuthenticated) {
       setIsPopupOpen(true)
       return
@@ -80,10 +81,15 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
       images: product.images,
     }
 
-    rootStore.cart.addToCart({
-      ...productInfo,
-      discountPercent: product.discountPercent ?? 0,
-    })
+    try {
+      setIsAdding(true)
+      await rootStore.cart.addToCart({
+        ...productInfo,
+        discountPercent: product.discountPercent ?? 0,
+      })
+    } finally {
+      setIsAdding(false)
+    }
   }, [product, rootStore])
 
   return (
@@ -161,6 +167,9 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, className }) => {
                 onClick={handleAddProductToBasket}
                 className={s['product-info_button']}
                 buttonStyle='transparent'
+                loading={isAdding}
+                loaderSize='xs'
+                loaderColor='green'
               >
                 Add to Cart
               </Button>

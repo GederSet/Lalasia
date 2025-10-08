@@ -54,8 +54,9 @@ const Card: React.FC<CardProps> = ({
 }) => {
   const rootStore = useRootStore()
   const [isPopupOpen, setIsPopupOpen] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
 
-  const handleAddProductToBasket = (e: React.MouseEvent) => {
+  const handleAddProductToBasket = async (e: React.MouseEvent) => {
     e.preventDefault()
 
     if (!rootStore.auth.isAuthenticated) {
@@ -73,7 +74,12 @@ const Card: React.FC<CardProps> = ({
       discountPercent: discountPercent,
     }
 
-    rootStore.cart.addToCart(productInfo)
+    try {
+      setIsAdding(true)
+      await rootStore.cart.addToCart(productInfo)
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   return (
@@ -163,7 +169,12 @@ const Card: React.FC<CardProps> = ({
                 onClick={(e) => handleAddProductToBasket(e)}
                 className={s.card__button}
               >
-                {actionSlot}
+                {React.isValidElement(actionSlot)
+                  ? React.cloneElement(actionSlot as React.ReactElement<any>, {
+                      loading: isAdding,
+                      loaderSize: 'xs',
+                    })
+                  : actionSlot}
               </div>
             )}
           </div>
