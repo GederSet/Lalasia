@@ -39,4 +39,8 @@ export const routes = {
     mask: '/settings',
     create: () => '/settings',
   },
+  favorites: {
+    mask: '/favorites',
+    create: () => '/favorites',
+  },
 }

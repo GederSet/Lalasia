@@ -2,14 +2,16 @@ import { routes } from '@config/routes/routesMask'
 import { useRootStore } from '@shared/store/RootStore'
 import { getDiscount } from '@shared/utils/getDiscount'
 import cn from 'classnames'
+import { observer } from 'mobx-react-lite'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import { Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import HeartIcon from '../icons/HeartIcon'
 import StarIcon from '../icons/StarIcon'
 import Popup from '../Popup'
 import Text from '../Text'
@@ -36,6 +38,7 @@ export type CardProps = {
   productNumberId: number
   discountPercent: number
   rating: number
+  onFavoriteChange?: (productId: number, isFavorite: boolean) => void
 }
 
 const Card: React.FC<CardProps> = ({
@@ -51,15 +54,36 @@ const Card: React.FC<CardProps> = ({
   onClick,
   actionSlot,
   rating,
+  onFavoriteChange,
 }) => {
   const rootStore = useRootStore()
   const [isPopupOpen, setIsPopupOpen] = useState(false)
+  const [popupMessage, setPopupMessage] = useState('You are not logged in')
   const [isAdding, setIsAdding] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const email = rootStore.auth.currentUser?.email
+    if (!email) {
+      setIsFavorite(false)
+      return
+    }
+    try {
+      const raw = localStorage.getItem('favorites')
+      const store = raw ? JSON.parse(raw) : {}
+      const list: any[] = Array.isArray(store[email]) ? store[email] : []
+      setIsFavorite(list.some((i) => i?.id === productNumberId))
+    } catch {
+      setIsFavorite(false)
+    }
+  }, [rootStore.auth.currentUser?.email, productNumberId])
 
   const handleAddProductToBasket = async (e: React.MouseEvent) => {
     e.preventDefault()
 
     if (!rootStore.auth.isAuthenticated) {
+      setPopupMessage('You are not logged in')
       setIsPopupOpen(true)
       return
     }
@@ -82,6 +106,50 @@ const Card: React.FC<CardProps> = ({
     }
   }
 
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!rootStore.auth.isAuthenticated) {
+      setPopupMessage('Please register to use favorites')
+      setIsPopupOpen(true)
+      return
+    }
+
+    try {
+      const email = rootStore.auth.currentUser?.email
+      if (!email) throw new Error('No user email')
+      const raw = localStorage.getItem('favorites')
+      const store = raw ? JSON.parse(raw) : {}
+      const list: any[] = Array.isArray(store[email]) ? store[email] : []
+      const exists = list.some((i) => i?.id === productNumberId)
+      let next: any[]
+      if (exists) {
+        next = list.filter((i) => i?.id !== productNumberId)
+        setIsFavorite(false)
+        onFavoriteChange?.(productNumberId, false)
+      } else {
+        const favoriteItem = {
+          id: productNumberId,
+          documentId: productId,
+          title: String(title),
+          price: Number(contentSlot),
+          description: String(subtitle),
+          images: images,
+          discountPercent: discountPercent,
+          rating: rating,
+        }
+        next = [favoriteItem, ...list]
+        setIsFavorite(true)
+        onFavoriteChange?.(productNumberId, true)
+      }
+      const updated = { ...store, [email]: next }
+      localStorage.setItem('favorites', JSON.stringify(updated))
+    } catch (err) {
+      console.error('Failed to toggle favorite', err)
+    }
+  }
+
   return (
     <>
       <Link
@@ -89,12 +157,22 @@ const Card: React.FC<CardProps> = ({
         onClick={onClick}
         className={cn(s.card, className)}
       >
-        {rating !== 0 && (
-          <div className={s.card__rating}>
-            <StarIcon />
-            <p className={s['card__rating-text']}>{rating}</p>
+        <div className={s['card__options-wrapper']}>
+          <div
+            className={cn(s['card__heart'], {
+              [s['card__heart_active']]: isFavorite,
+            })}
+            onClick={handleToggleFavorite}
+          >
+            <HeartIcon width={28} height={28} />
           </div>
-        )}
+          {rating !== 0 && (
+            <div className={s.card__rating}>
+              <StarIcon />
+              <p className={s['card__rating-text']}>{rating}</p>
+            </div>
+          )}
+        </div>
         {discountPercent !== 0 && (
           <div className={s['card__discount-badge']}>-{discountPercent}%</div>
         )}
@@ -183,7 +261,7 @@ const Card: React.FC<CardProps> = ({
       <Popup
         isOpen={isPopupOpen}
         title='Warning'
-        description='You are not logged in'
+        description={popupMessage}
         type='alert'
         onConfirm={() => setIsPopupOpen(false)}
       />
@@ -191,4 +269,4 @@ const Card: React.FC<CardProps> = ({
   )
 }
 
-export default Card
+export default observer(Card)

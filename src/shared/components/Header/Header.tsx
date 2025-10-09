@@ -28,6 +28,7 @@ const menuItems: MenuItem[] = [
   { label: 'About us', to: routes.aboutUs.mask },
   { label: 'History', to: routes.history.mask, isHide: true },
   { label: 'Settings', to: routes.settings.mask, isHide: true },
+  { label: 'Favorites', to: routes.favorites.mask, isHide: true },
 ]
 
 const Header: React.FC = () => {
@@ -238,6 +239,12 @@ const Header: React.FC = () => {
                       className={s['menu__item-control']}
                     >
                       History
+                    </Link>
+                    <Link
+                      href={routes.favorites.mask}
+                      className={s['menu__item-control']}
+                    >
+                      Favorites
                     </Link>
                     <Link
                       href={routes.settings.mask}
